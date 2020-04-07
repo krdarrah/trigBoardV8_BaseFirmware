@@ -35,7 +35,7 @@ bool rtcInit(byte timeValue, bool setNewTime) {
   if (((reg01 >> 3) & 0x1) == 1) {
     Serial.println("Timer Wake!");
     timerWake = true;
-    writeRTC(0x01, 0x03);//clear that interrupt, but also keep clockout off
+    writeRTC(0x01, 0x07);//clear that interrupt, but also keep clockout off
     writeRTC(0x11, 0x00);//freeze timer for now
   } else
     timerWake = false;
@@ -43,7 +43,7 @@ bool rtcInit(byte timeValue, bool setNewTime) {
   byte timerMode = readRTC(0x11);
   if (((timerMode >> 2) & 0x1) == 0 || setNewTime) { //if timer fired, was never setup, or GUI changed something
     writeRTC(0x00, 0x58);//soft reset for good measure
-    writeRTC(0x01, 0x03);//turn off clock out FD=111
+    writeRTC(0x01, 0x07);//turn off clock out FD=111
     writeRTC(0x10, timeValue);//set count down time, 1 = 60seconds = 1min, so 60 = 1hr
     if (strcmp(config.rtcCountdownMinute, "t") == 0) {
       //Serial.println("Minute Mode");
