@@ -1,6 +1,6 @@
 #include "includes.h"
 
-const char fwVersion[] = "4/07/20";
+const char fwVersion[] = "4/08/20";
 
 void setup() {
   pinMode(ESPlatchPin, OUTPUT);
@@ -26,8 +26,6 @@ void setup() {
   killPower();
   waitForButton();
   initBluetooth();
-  //setupOTA();
-
 }
 
 void loop() {

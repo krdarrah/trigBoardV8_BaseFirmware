@@ -64,6 +64,10 @@ void killPower() {
   checkIfContactChanged();
   digitalWrite(ESPlatchPin, LOW);
   Serial.println("last breath...");
+  delay(100);
+  if (digitalRead(wakeButtonPin))//and wake not pressed, but still alive
+    rtcInit(config.timerCountDown, false);//just in case the RTC fired and we're still here
+
 }
 
 void checkIfContactChanged() {
@@ -83,7 +87,9 @@ void waitForButton() {
   while (millis() - buttonHoldStartTime < 3000) {
 
   }
+
   digitalWrite(ESPlatchPin, HIGH);
+
   for (int i = 0; i < 20; i++) {
     digitalWrite(LEDpin, !digitalRead(LEDpin));
     delay(50);

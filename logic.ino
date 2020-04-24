@@ -76,7 +76,7 @@ bool pushLogic() {
   if (strcmp(config.trigSelect, "Close") == 0 && contactLatchClosed) {
     Serial.println(F("CONTACT CLOSE"));
     sprintf(pushMessage, "%s, %sV", config.triggerClosesMessage, batCharString);
-    rtcInit(config.timerCountDown, true);//reset timer
+    rtcInit(config.timerCountDown, true);//reset timer - this is set to true so that when the door opens/closes, you start fresh
     return true;
   }
   //**************************************
@@ -136,15 +136,5 @@ bool pushLogic() {
     }
 
   }
-
-
-
-
-
-
-
-
-
   return false;
-
 }
