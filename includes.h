@@ -49,7 +49,7 @@ struct Config {//full configuration file
   char timerSelect[10];
   char StillOpenMessage[50];
   char StillClosedMessage[50];
-  float batteryThreshold;
+  double batteryThreshold;
   char pushOverEnable[3];
   char pushUserKey[50];
   char pushAPIKey[50];

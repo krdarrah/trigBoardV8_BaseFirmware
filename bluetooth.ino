@@ -775,7 +775,9 @@ void serviceBluetooth() {
     transmitData("tsc", config.StillClosedMessage);
     delay(25);
     char floatValue[5];
+    
     dtostrf(config.batteryThreshold, 1, 2, floatValue);//convert float to str
+    
     transmitData("lob", floatValue);
     delay(25);
     transmitData("poe", config.pushOverEnable);

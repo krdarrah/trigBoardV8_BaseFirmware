@@ -41,6 +41,8 @@ void udp() {
     WiFi.begin(config.udpSSID, config.udpPW);
     unsigned long wifiStart = millis();
     while (WiFi.status() != WL_CONNECTED) {
+      delay(500);
+      Serial.print(".");
       if (millis() - wifiStart > config.wifiTimeout) {
         Serial.println("Couldn't connect");
         killPower();

@@ -24,10 +24,12 @@ bool connectWiFi() {
   Serial.printf("%s\n", config.ssid);
 
 
-  
+
   unsigned long wifiStart = millis();
   WiFi.begin(config.ssid, config.pw);
   while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
     if (millis() - wifiStart > config.wifiTimeout) {
       killPower();
       return false;

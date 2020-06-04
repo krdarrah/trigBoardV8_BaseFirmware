@@ -57,6 +57,7 @@ void loadConfiguration(const char *filename, Config &config) {
             sizeof(config.StillClosedMessage));         // <- destination's capacity
 
     config.batteryThreshold = doc["batteryThreshold"] | 2;
+    
     strlcpy(config.pushUserKey,                  // <- destination
             doc["pushUserKey"] | "Your User Key",  // <- source
             sizeof(config.pushUserKey));         // <- destination's capacity
