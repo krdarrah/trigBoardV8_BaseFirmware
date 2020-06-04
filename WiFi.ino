@@ -1,9 +1,24 @@
+//wifi event handler
+boolean wifiConnected = false;
+void WiFiEvent(WiFiEvent_t event) {
+  switch (event) {
+    case SYSTEM_EVENT_STA_GOT_IP:
+      //When connected set
+      wifiConnected = true;
+      break;
+    //    case SYSTEM_EVENT_STA_DISCONNECTED:
+    //      Serial.println("WiFi lost connection");
+    //      connected = false;
+    //      break;
+    default: break;
+  }
+}
+
 bool connectWiFi() {
   Serial.print(F("connecting to WiFi - timeout="));
   Serial.println(config.wifiTimeout);
   if (strcmp(config.staticIPenable, "t") == 0) {//if static
     Serial.println("Setting up Static IP");
-    //WiFi.disconnect();
     getFourNumbersForIP(config.staticIP);
     Serial.printf("%i.%i.%i.%i\n", oneIP, twoIP, threeIP, fourIP);
     IPAddress ip(oneIP, twoIP, threeIP, fourIP);
@@ -23,18 +38,15 @@ bool connectWiFi() {
   }
   Serial.printf("%s\n", config.ssid);
 
-
-
+  wifiConnected = false;
+  WiFi.onEvent(WiFiEvent);
   unsigned long wifiStart = millis();
   WiFi.begin(config.ssid, config.pw);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
+  while (!wifiConnected) {
     if (millis() - wifiStart > config.wifiTimeout) {
       killPower();
       return false;
     }
-
   }
 
   Serial.println("Connected");

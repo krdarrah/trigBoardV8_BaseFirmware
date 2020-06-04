@@ -1,3 +1,19 @@
+//wifi event handler
+boolean udpConnected = false;
+void udpWiFiEvent(WiFiEvent_t event) {
+  switch (event) {
+    case SYSTEM_EVENT_STA_GOT_IP:
+      //When connected set
+      udpConnected = true;
+      break;
+    //    case SYSTEM_EVENT_STA_DISCONNECTED:
+    //      Serial.println("WiFi lost connection");
+    //      connected = false;
+    //      break;
+    default: break;
+  }
+}
+
 
 void getFourNumbersForIP(const char *ipChar) {
   char ipCharInput[20];
@@ -25,7 +41,7 @@ void getFourNumbersForIP(const char *ipChar) {
 void udp() {
   if (strcmp(config.udpEnable, "t") == 0) {//only if enabled
     Serial.println("UDP MESSAGE");
-    WiFi.disconnect();
+    WiFi.disconnect(true);
     getFourNumbersForIP(config.udpStaticIP);
     IPAddress ip(oneIP, twoIP, threeIP, fourIP);
     getFourNumbersForIP(config.udpGatewayAddress);
@@ -36,20 +52,18 @@ void udp() {
     IPAddress primaryDNS(oneIP, twoIP, threeIP, fourIP);
     getFourNumbersForIP(config.udpSecondaryDNSAddress);
     IPAddress secondaryDNS(oneIP, twoIP, threeIP, fourIP);
-
+    udpConnected = false;
+    WiFi.onEvent(udpWiFiEvent);
     WiFi.config(ip, gateway, subnet, primaryDNS, secondaryDNS);
     WiFi.begin(config.udpSSID, config.udpPW);
     unsigned long wifiStart = millis();
-    while (WiFi.status() != WL_CONNECTED) {
-      delay(500);
-      Serial.print(".");
+    while (!udpConnected) {
       if (millis() - wifiStart > config.wifiTimeout) {
         Serial.println("Couldn't connect");
         killPower();
         return;
       }
     }
-
     Serial.println("Connected");
     const char * udpAddress = config.udpTargetIP;
     const int udpPort = config.udpPort;
@@ -66,7 +80,7 @@ void udp() {
           delay(config.udptimeBetweenBlasts);
           //break;
         }
-        else{
+        else {
           delay(100);
           Serial.println("fail on end packet");
         }
