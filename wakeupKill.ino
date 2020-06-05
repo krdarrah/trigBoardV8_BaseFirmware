@@ -39,13 +39,16 @@ void checkWakeupPins() {
 
   pinMode(killPowerPin, OUTPUT);
   digitalWrite(killPowerPin, HIGH);
-  delay(100);
-  digitalWrite(killPowerPin, LOW);
+  //  delay(100);
+  //  digitalWrite(killPowerPin, LOW);
 }
 
 
 void killPower() {
   Serial.println("killing power");
+  WiFi.mode(WIFI_OFF);
+  btStop();
+
   checkIfContactChanged();
   //could get stuck if you really beat on it
   unsigned long waitForLatchStartTime = millis();
@@ -71,7 +74,7 @@ void killPower() {
 }
 
 void checkIfContactChanged() {
-  if (!digitalRead(contactStatusPin) != contactStatusClosed) {//chnaged
+  if (!digitalRead(contactStatusPin) != contactStatusClosed) {//changed
     contactChanged = true;
     rtcInit(config.timerCountDown, false);
     Serial.println("contact changed - rebooting");

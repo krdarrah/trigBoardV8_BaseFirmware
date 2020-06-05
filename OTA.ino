@@ -1,3 +1,4 @@
+unsigned int oldProgress;
 void setupOTA() {
   if (WiFi.status() == WL_CONNECTED) {
     ArduinoOTA
@@ -10,17 +11,22 @@ void setupOTA() {
 
       // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
       Serial.println("Start updating " + type);
-      
+      oldProgress = 0;
     })
     .onEnd([]() {
       Serial.println("\nEnd");
     })
     .onProgress([](unsigned int progress, unsigned int total) {
-      char progressChar[50];
-      sprintf(progressChar,"%u%%", (progress / (total / 100)));
-      Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
-      transmitData("OTAprog", progressChar);
-      digitalWrite(LEDpin, !digitalRead(LEDpin));
+      unsigned int progressPercentage = (progress / (total / 100));
+      if (progressPercentage >= oldProgress+2) {
+        char progressChar[50];
+        sprintf(progressChar, "%u%%", progressPercentage);
+        Serial.printf("Progress: %u%%\n", progressPercentage);
+        transmitData("OTAprog", progressChar);
+        digitalWrite(LEDpin, !digitalRead(LEDpin));
+        oldProgress = progressPercentage;
+      }
+
     })
     .onError([](ota_error_t error) {
       transmitData("OTAprog", "ERROR");
