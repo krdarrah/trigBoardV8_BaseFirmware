@@ -46,6 +46,7 @@ void checkWakeupPins() {
 
 void killPower() {
   Serial.println("killing power");
+  WiFi.disconnect(true);
   WiFi.mode(WIFI_OFF);
   btStop();
 
