@@ -29,6 +29,8 @@ void setup() {
 }
 
 void loop() {
-  serviceBluetooth();
-  checkOTA();
+  if (!OTAsetup)
+    serviceBluetooth();
+  else
+    checkOTA();
 }
