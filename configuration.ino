@@ -56,8 +56,10 @@ void loadConfiguration(const char *filename, Config &config) {
             doc["StillClosedMessage"] | "Contact Still Closed",  // <- source
             sizeof(config.StillClosedMessage));         // <- destination's capacity
 
-    config.batteryThreshold = doc["batteryThreshold"] | 2;
-    
+
+    config.batteryThreshold = doc["batteryThreshold"] | 2000;
+    config.batteryThreshold = config.batteryThreshold / 1000; //convert to volts
+
     strlcpy(config.pushUserKey,                  // <- destination
             doc["pushUserKey"] | "Your User Key",  // <- source
             sizeof(config.pushUserKey));         // <- destination's capacity
@@ -151,7 +153,7 @@ void loadConfiguration(const char *filename, Config &config) {
     strlcpy(config.highSpeed,                  // <- destination
             doc["highSpeed"] | "f",  // <- source
             sizeof(config.highSpeed));         // <- destination's capacity
-            
+
     config.udpBlastCount = doc["udpBlastCount"] | 10;
     config.udptimeBetweenBlasts = doc["udptimeBetweenBlasts"] | 10;
 
@@ -187,7 +189,8 @@ void saveConfiguration(const char *filename, const Config &config) {
     doc["timerSelect"] = config.timerSelect;
     doc["StillOpenMessage"] = config.StillOpenMessage;
     doc["StillClosedMessage"] = config.StillClosedMessage;
-    doc["batteryThreshold"] = config.batteryThreshold;
+
+    doc["batteryThreshold"] = config.batteryThreshold * 1000;
     doc["pushUserKey"] = config.pushUserKey;
     doc["pushAPIKey"] = config.pushAPIKey;
     doc["pushOverEnable"] = config.pushOverEnable;
