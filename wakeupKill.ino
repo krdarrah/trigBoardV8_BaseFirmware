@@ -46,32 +46,20 @@ void checkWakeupPins() {
 
 void killPower() {
   Serial.println("killing power");
-  WiFi.disconnect(true);
+  WiFi.disconnect(true);//done with wireless for now
   WiFi.mode(WIFI_OFF);
   btStop();
-
-  checkIfContactChanged();
+  checkIfContactChanged();//in case contact changed while pushing message out
   //could get stuck if you really beat on it
   unsigned long waitForLatchStartTime = millis();
   while ((!digitalRead(contactClosedPin) || !digitalRead(contactOpenedPin))) {//in case a race condition
-    if (millis() - waitForLatchStartTime > 1000) {//added this in after finding that sometimes it freezes up in here
-      Serial.println("latches did not unlatch - trying again");
-      digitalWrite(killPowerPin, HIGH);
-      delay(100);
-      digitalWrite(killPowerPin, LOW);
-      waitForLatchStartTime = millis();
-    }
-    //Serial.println("dying");
+    //do nothing, we have to wait for things to unlatch before proceeding 
   }
-  checkIfContactChanged();
-  rtcInit(config.timerCountDown, false);//just in case the RTC timer tripped while we were doing something else
-  checkIfContactChanged();
-  digitalWrite(ESPlatchPin, LOW);
-  Serial.println("last breath...");
-  delay(100);
+  checkIfContactChanged();//that might've taken a while, so better check to see if things changed
+  digitalWrite(ESPlatchPin, LOW);//when this goes LOW, we are done...
+  Serial.println("zzz");
   if (digitalRead(wakeButtonPin))//and wake not pressed, but still alive
     rtcInit(config.timerCountDown, false);//just in case the RTC fired and we're still here
-
 }
 
 void checkIfContactChanged() {
@@ -89,9 +77,7 @@ void waitForButton() {
   Serial.println("waiting for button");
   unsigned long buttonHoldStartTime = millis();
   while (millis() - buttonHoldStartTime < 3000) {
-
   }
-
   digitalWrite(ESPlatchPin, HIGH);
 
   for (int i = 0; i < 20; i++) {
