@@ -57,8 +57,11 @@ void loadConfiguration(const char *filename, Config &config) {
             sizeof(config.StillClosedMessage));         // <- destination's capacity
 
 
-    config.batteryThreshold = doc["batteryThreshold"] | 2000;
+    config.batteryThreshold = doc["batteryThreshold"] | 2500;
     config.batteryThreshold = config.batteryThreshold / 1000; //convert to volts
+
+    config.batteryOffset = doc["batteryOffset"] | 0;
+    config.batteryOffset = config.batteryOffset / 1000; //convert to volts
 
     strlcpy(config.pushUserKey,                  // <- destination
             doc["pushUserKey"] | "Your User Key",  // <- source
@@ -191,6 +194,8 @@ void saveConfiguration(const char *filename, const Config &config) {
     doc["StillClosedMessage"] = config.StillClosedMessage;
 
     doc["batteryThreshold"] = config.batteryThreshold * 1000;
+    doc["batteryOffset"] = config.batteryOffset * 1000;
+    
     doc["pushUserKey"] = config.pushUserKey;
     doc["pushAPIKey"] = config.pushAPIKey;
     doc["pushOverEnable"] = config.pushOverEnable;

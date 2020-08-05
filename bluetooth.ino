@@ -669,6 +669,27 @@ class MyCallbacks: public BLECharacteristicCallbacks {
           sendParam = true;
         }
         //**************************************
+        char *keyWordbof = strstr(rxBuffer, "#bof");
+        if (keyWordbof != NULL) {
+          const char delimiter[] = ",";
+          char parsedStrings[2][5];
+          char *token =  strtok(rxBuffer, delimiter);
+          strncpy(parsedStrings[0], token, sizeof(parsedStrings[0]));//first one
+          for (int i = 1; i < 2; i++) {
+            token =  strtok(NULL, delimiter);
+            strncpy(parsedStrings[i], token, sizeof(parsedStrings[i]));
+          }
+
+          float convertedToFloat = atof(parsedStrings[1]);
+          if (convertedToFloat > 5.0)
+            convertedToFloat = 5.0;
+          if (convertedToFloat < -5.0)
+            convertedToFloat = -5.0;
+          config.batteryOffset = convertedToFloat;
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+        //**************************************
         char *keyWordpot = strstr(rxBuffer, "#pot");
         if (keyWordpot != NULL) {
           pushOver();
@@ -775,10 +796,12 @@ void serviceBluetooth() {
     transmitData("tsc", config.StillClosedMessage);
     delay(25);
     char floatValue[5];
-    
     dtostrf(config.batteryThreshold, 1, 2, floatValue);//convert float to str
-    
     transmitData("lob", floatValue);
+    delay(25);
+    char floatValuebof[5];
+    dtostrf(config.batteryOffset, 1, 2, floatValuebof);//convert float to str
+    transmitData("bof", floatValuebof);
     delay(25);
     transmitData("poe", config.pushOverEnable);
     delay(25);

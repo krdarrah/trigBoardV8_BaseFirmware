@@ -50,6 +50,7 @@ struct Config {//full configuration file
   char StillOpenMessage[50];
   char StillClosedMessage[50];
   double batteryThreshold;
+  double batteryOffset;
   char pushOverEnable[3];
   char pushUserKey[50];
   char pushAPIKey[50];

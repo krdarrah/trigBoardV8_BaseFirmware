@@ -7,7 +7,7 @@ float getBattery() {
 
   float m = 0.002424242;
   float b = 0.562424242;
-  float batteryVoltage = batteryRawCount * m + b;
+  float batteryVoltage = batteryRawCount * m + b + config.batteryOffset;
   if (batteryVoltage < config.batteryThreshold)
     lowBattery = true;
   else
