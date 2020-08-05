@@ -13,3 +13,9 @@ All trigBoards after this date will be burned with this code
 
 6/05/20
 - Under development
+
+6/22/20
+- Minor performance improvements
+
+8/05/20
+- added battery offset to battery voltage measurement
