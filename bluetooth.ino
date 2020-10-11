@@ -42,6 +42,10 @@ class MyCallbacks: public BLECharacteristicCallbacks {
           strncpy(parsedStrings[0], token, sizeof(parsedStrings[0]));//first one
           for (int i = 1; i < 3; i++) {
             token =  strtok(NULL, delimiter);
+            if (token == NULL && i == 2) { //means no password
+              strcpy(parsedStrings[2], "");
+              break;
+            }
             strncpy(parsedStrings[i], token, sizeof(parsedStrings[i]));
           }
           WiFi.disconnect();

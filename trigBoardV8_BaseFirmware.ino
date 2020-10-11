@@ -1,6 +1,6 @@
 #include "includes.h"
 
-const char fwVersion[] = "8/05/20";
+const char fwVersion[] = "10/10/20";
 
 void setup() {
   pinMode(ESPlatchPin, OUTPUT);
