@@ -1,5 +1,7 @@
 # trigBoardV8_BaseFirmware
-https://www.kevindarrah.com/wiki/index.php?title=TrigBoard
+
+Project fully documented here: 
+https://trigboard-docs.readthedocs.io/en/latest/index.html
 
 Release:
 3/19/20 - First Release
@@ -19,3 +21,6 @@ All trigBoards after this date will be burned with this code
 
 8/05/20
 - added battery offset to battery voltage measurement
+
+10/10/20
+- small change to allow the password to be entered in blank in the configurator in case of connecting to an unsecured network
