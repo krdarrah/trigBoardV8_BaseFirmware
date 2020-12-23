@@ -23,7 +23,6 @@ void setup() {
     udp();
     tcp();
   }
-
   killPower();
   waitForButton();
   initBluetooth();
