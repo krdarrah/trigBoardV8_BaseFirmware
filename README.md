@@ -24,3 +24,6 @@ All trigBoards after this date will be burned with this code
 
 10/10/20
 - small change to allow the password to be entered in blank in the configurator in case of connecting to an unsecured network
+
+12/20/20
+- Added support for TCP as choice instead of UDP
