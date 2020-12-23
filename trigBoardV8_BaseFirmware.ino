@@ -1,6 +1,6 @@
 #include "includes.h"
 
-const char fwVersion[] = "10/10/20";
+const char fwVersion[] = "12/20/20";
 
 void setup() {
   pinMode(ESPlatchPin, OUTPUT);
@@ -21,6 +21,7 @@ void setup() {
       }
     }
     udp();
+    tcp();
   }
 
   killPower();

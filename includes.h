@@ -59,6 +59,7 @@ struct Config {//full configuration file
   char iftttEnable[3];
   char iftttMakerKey[50];
   char udpEnable[3];
+  char tcpEnable[3];
   char udpTargetIP[20];
   char udpStaticIP[20];
   char udpGatewayAddress[20];
@@ -143,7 +144,9 @@ bool pushLogic();
 //    udp tab
 void udp();
 int oneIP = 0, twoIP = 0, threeIP = 0, fourIP = 0;
-void getFourNumbersForIP(const char *ipChar);//used also in WiFi tab
+void getFourNumbersForIP(const char *ipChar);//used also in WiFi & tcp tab
+//tcp tab
+
 // ifttt tab
 void ifttt();
 //pushSafer tab

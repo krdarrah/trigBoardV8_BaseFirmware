@@ -81,6 +81,9 @@ void loadConfiguration(const char *filename, Config &config) {
     strlcpy(config.udpEnable,                  // <- destination
             doc["udpEnable"] | "t",  // <- source
             sizeof(config.udpEnable));         // <- destination's capacity
+    strlcpy(config.tcpEnable,                  // <- destination
+            doc["tcpEnable"] | "f",  // <- source
+            sizeof(config.tcpEnable));         // <- destination's capacity
     config.udpPort = doc["udpPort"] | 1234;
     strlcpy(config.pushSaferKey,                  // <- destination
             doc["pushSaferKey"] | "your pushSafer key",  // <- source
@@ -195,7 +198,7 @@ void saveConfiguration(const char *filename, const Config &config) {
 
     doc["batteryThreshold"] = config.batteryThreshold * 1000;
     doc["batteryOffset"] = config.batteryOffset * 1000;
-    
+
     doc["pushUserKey"] = config.pushUserKey;
     doc["pushAPIKey"] = config.pushAPIKey;
     doc["pushOverEnable"] = config.pushOverEnable;
@@ -204,6 +207,7 @@ void saveConfiguration(const char *filename, const Config &config) {
     doc["iftttEnable"] = config.iftttEnable;
     doc["iftttMakerKey"] = config.iftttMakerKey;
     doc["udpEnable"] = config.udpEnable;
+    doc["tcpEnable"] = config.tcpEnable;
     doc["udpTargetIP"] = config.udpTargetIP;
     doc["udpStaticIP"] = config.udpStaticIP;
     doc["udpGatewayAddress"] = config.udpGatewayAddress;

@@ -363,11 +363,31 @@ class MyCallbacks: public BLECharacteristicCallbacks {
           strlcpy(config.udpEnable,                  // <- destination
                   "t",  // <- source
                   sizeof(config.udpEnable));         // <- destination's capacity
+          strlcpy(config.tcpEnable,                  // <- destination
+                  "f",  // <- source
+                  sizeof(config.tcpEnable));         // <- destination's capacity
           saveConfiguration(filename, config);
           sendParam = true;
         }
-        char *keyWordudd = strstr(rxBuffer, "#udd");
-        if (keyWordudd != NULL) {
+        //**************************************
+        char *keyWordudptcpDis = strstr(rxBuffer, "#udd");
+        if (keyWordudptcpDis != NULL) {
+          Serial.println("disabling udp and tcp");
+          strlcpy(config.udpEnable,                  // <- destination
+                  "f",  // <- source
+                  sizeof(config.udpEnable));         // <- destination's capacity
+          strlcpy(config.tcpEnable,                  // <- destination
+                  "f",  // <- source
+                  sizeof(config.tcpEnable));         // <- destination's capacity
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+        //**************************************
+        char *keyWordtce = strstr(rxBuffer, "#tce");
+        if (keyWordtce != NULL) {
+          strlcpy(config.tcpEnable,                  // <- destination
+                  "t",  // <- source
+                  sizeof(config.tcpEnable));         // <- destination's capacity
           strlcpy(config.udpEnable,                  // <- destination
                   "f",  // <- source
                   sizeof(config.udpEnable));         // <- destination's capacity
@@ -822,6 +842,8 @@ void serviceBluetooth() {
     transmitData("ifk", config.iftttMakerKey);
     delay(25);
     transmitData("ude", config.udpEnable);
+    delay(25);
+    transmitData("tce", config.tcpEnable);
     delay(25);
     transmitData("udt", config.udpTargetIP);
     delay(25);
