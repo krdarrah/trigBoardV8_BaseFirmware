@@ -7,7 +7,7 @@ boolean sendTCPmessage() {
     client.println("Content-Type: text/plain");
     client.println("Connection: close");
     client.println();
-    client.println();
+    //client.println();
     //let's wait for something to come back... only a few seconds
     unsigned long startTimePush = millis();
     while (millis() - startTimePush < 1000) {
