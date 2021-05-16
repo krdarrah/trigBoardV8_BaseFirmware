@@ -86,15 +86,15 @@ struct Config {//full configuration file
   int udpBlastCount;
   int udptimeBetweenBlasts;
   char highSpeed[3];
-  int homeAssistantIntegration;
+  byte homeAssistantIntegration;
   char homeAssistantPrefix[50];
 };
 enum homeAssistantValues{
-  STATUS,
+  STATUT,
   LOW_BATT,
   BATT_V,
   TIME_WAKE
-}
+};
 //bluetooth
 BLEServer *pServer = NULL;
 BLECharacteristic * pTxCharacteristic;
