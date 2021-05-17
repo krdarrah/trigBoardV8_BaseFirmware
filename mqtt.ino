@@ -48,20 +48,20 @@ void mqtt()
         // Once connected, publish an announcement...
         char mqttMessage[70];
 
-        if (config.homeAssistantIntegration == 1)
+        if (strcmp(config.homeAssistantIntegration , "t") == 0)
         { // push data to homeassisant
           char status[7];
           char lowBattString[6];
           char timerWakeString[6];
 
-          char stateTopic[20];
+          char stateTopic[50];
           sprintf(stateTopic, "%s/%s/state", config.homeAssistantPrefix, WiFi.macAddress());
           //Create & Send discovery topic for each value : sensorString, lowBattString, batCharString, timerWakeString,
           for (int i = 0; i < 3; i++)
           {
             char mqttDiscoveryMessage[5];
             char mqttDiscoveryTopic[10];
-            //topic is {HomeAssitantPrefix}/binary_sensor/{MACAdress}/config
+            //topic is {HomeAssitantPrefix}/{sensortype}/{MACAdress}/config : 1 per device
             char valueTemplate[30];
             char name[10];
             char device_class[10];

@@ -86,7 +86,7 @@ struct Config {//full configuration file
   int udpBlastCount;
   int udptimeBetweenBlasts;
   char highSpeed[3];
-  byte homeAssistantIntegration;
+  char homeAssistantIntegration[3];
   char homeAssistantPrefix[50];
 };
 enum homeAssistantValues{

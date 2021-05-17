@@ -161,7 +161,9 @@ void loadConfiguration(const char *filename, Config &config) {
             sizeof(config.highSpeed));         // <- destination's capacity
 
 
-    config.homeAssistantIntegration = doc["homeAssistantIntegration"] | 0;
+    strlcpy(config.homeAssistantIntegration,                  // <- destination
+            doc["homeAssistantIntegration"] | "f",  // <- source
+            sizeof(config.homeAssistantIntegration));         // <- destination's capacity
 
     strlcpy(config.homeAssistantPrefix,                  // <- destination
             doc["homeAssistantPrefix"] | "homeassistant",  // <- source
