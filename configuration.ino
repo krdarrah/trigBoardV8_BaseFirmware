@@ -141,7 +141,7 @@ void loadConfiguration(const char *filename, Config &config) {
             doc["staticIPenable"] | "f",  // <- source
             sizeof(config.staticIPenable));         // <- destination's capacity
     strlcpy(config.staticIP,                  // <- destination
-            doc["staticIP"] | "192.168.1.200",  // <- source
+            doc["staticIP"] | "192.168.1.150",  // <- source
             sizeof(config.staticIP));         // <- destination's capacity
     strlcpy(config.staticGatewayAddress,                  // <- destination
             doc["staticGatewayAddress"] | "192.168.1.1",  // <- source

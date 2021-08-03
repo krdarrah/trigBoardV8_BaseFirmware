@@ -21,6 +21,8 @@ void mqtt()
 
     WiFiClient espClient;
     PubSubClient client(espClient);
+    Serial.println ("MQTTT SERVER");
+    Serial.println (config.mqttServer);
     client.setServer(config.mqttServer, config.mqttPort);
     client.setCallback(callback);
     unsigned long mqttStart = millis();
@@ -48,84 +50,114 @@ void mqtt()
         // Once connected, publish an announcement...
         char mqttMessage[70];
 
-        if (strcmp(config.homeAssistantIntegration , "t") == 0)
+
+        //  if (strcmp(config.homeAssistantIntegration , "t") == 0)
+        if (true)
         { // push data to homeassisant
-          char status[7];
+          Serial.print("Send data to home Assisant");
+          char status[4];
           char lowBattString[6];
           char timerWakeString[6];
-
+          char mqttDiscoveryMessage[150];
+          char mqttDiscoveryTopic[100];
           char stateTopic[50];
-          sprintf(stateTopic, "%s/%s/state", config.homeAssistantPrefix, WiFi.macAddress());
+          char valueTemplate[30];
+          char name[10];
+          char device_class[10];
+          uint8_t baseMac[6];
+          // Get MAC address for WiFi station
+          esp_read_mac(baseMac, ESP_MAC_WIFI_STA);
+          char baseMacChr[9] = {0};
+          sprintf(baseMacChr, "%02X%02X%02X",  baseMac[3], baseMac[4], baseMac[5]);
+
           //Create & Send discovery topic for each value : sensorString, lowBattString, batCharString, timerWakeString,
-          for (int i = 0; i < 3; i++)
+          for (int i = 0; i <= 3; i++)
           {
-            char mqttDiscoveryMessage[5];
-            char mqttDiscoveryTopic[10];
+            sprintf(mqttDiscoveryTopic, "");
+            sprintf(stateTopic, "");
+            sprintf(stateTopic, "%s/%s/state", config.homeAssistantPrefix, baseMacChr);
             //topic is {HomeAssitantPrefix}/{sensortype}/{MACAdress}/config : 1 per device
-            char valueTemplate[30];
             char name[10];
             char device_class[10];
             switch (i)
             {
               case STATUT:
-                sprintf(mqttDiscoveryTopic, "%s/binary_sensor/status%s/config", config.homeAssistantPrefix, WiFi.macAddress());
+                sprintf(mqttDiscoveryTopic, "%s/binary_sensor/status%s/config", config.homeAssistantPrefix, baseMacChr);
                 sprintf(valueTemplate, "{{value_json.status}}");
                 sprintf(name, "Status");
                 sprintf(device_class, "door");
                 break;
               case LOW_BATT:
-                sprintf(mqttDiscoveryTopic, "%s/sensor/lowbatt%s/config", config.homeAssistantPrefix, WiFi.macAddress());
+                sprintf(mqttDiscoveryTopic, "%s/binary_sensor/lowbatt%s/config", config.homeAssistantPrefix, baseMacChr);
                 sprintf(valueTemplate, "{{value_json.low_batt}}");
                 sprintf(name, "Low Batt");
-                sprintf(device_class, "");
+                sprintf(device_class, "battery");
                 break;
               case BATT_V:
-                sprintf(mqttDiscoveryTopic, "%s/sensor/batt%s/config", config.homeAssistantPrefix, WiFi.macAddress());
+                sprintf(mqttDiscoveryTopic, "%s/sensor/batt%s/config", config.homeAssistantPrefix, baseMacChr);
                 sprintf(valueTemplate, "{{value_json.batt_v}}");
                 sprintf(name, "Tension");
                 sprintf(device_class, "voltage");
                 break;
               case TIME_WAKE:
-                sprintf(mqttDiscoveryTopic, "%s/sensor/waketime%s/config", config.homeAssistantPrefix, WiFi.macAddress());
+                sprintf(mqttDiscoveryTopic, "%s/binary_sensor/waketime%s/config", config.homeAssistantPrefix, baseMacChr);
                 sprintf(valueTemplate, "{{value_json.timer_wake}}");
                 sprintf(name, "WakeTime");
-                sprintf(device_class, "timestamp");
+                sprintf(device_class, "power");
                 break;
             }
-            sprintf(mqttDiscoveryMessage, "{name: \'%s\', ~:\'%s\', val_tpl:\'%s\', dev_cla=\'%s\'}", name, stateTopic, valueTemplate);
-            Serial.println(client.publish(mqttDiscoveryTopic, mqttDiscoveryMessage));
+            //sprintf(mqttDiscoveryMessage, "{name: '%s', stat_t:'%s', val_tpl:'%s', dev_cla:'%s'}", name, stateTopic, valueTemplate, device_class);
+            //Short Version
+            sprintf(mqttDiscoveryMessage, "{\"name\": \"%s\", \"stat_t\":\"%s\", \"val_tpl\":\"%s\", \"dev_cla\":\"%s\"}", name, stateTopic, valueTemplate, device_class);
+            Serial.println("*******************");
+            Serial.println("Publish data: ");
+            Serial.println(mqttDiscoveryMessage);
+            Serial.println("to:");
+            Serial.println(mqttDiscoveryTopic);
+            Serial.println(client.publish_P(mqttDiscoveryTopic, mqttDiscoveryMessage, false));
+            Serial.println("*******************");
           }
           //Create & Send message
           if (contactLatchClosed)
           {
-            sprintf(status, "off");
+            sprintf(status, "OFF");
           }
           else
           {
-            sprintf(status, "on");
+            sprintf(status, "ON");
           }
           if (lowBattery)
           {
-            sprintf(lowBattString, "true");
+            sprintf(lowBattString, "ON");
           }
           else
           {
-            sprintf(lowBattString, "false");
+            sprintf(lowBattString, "OFF");
           }
           if (timerWake)
           {
-            sprintf(timerWakeString, "true");
+            sprintf(timerWakeString, "ON");
           }
           else
           {
-            sprintf(timerWakeString, "false");
+            sprintf(timerWakeString, "OFF");
           }
-          sprintf(mqttMessage, "{\"status\": \"%s\", \"batt_v\": %s, \"low_batt\": %s, \"timer_wake\": %s}",
+
+          Serial.println("--------------------------");
+          sprintf(mqttMessage, "{\"status\": \"%s\", \"batt_v\": \"%s\", \"low_batt\": \"%s\", \"timer_wake\": \"%s\"}",
                   status,
                   batCharString,
                   lowBattString,
                   timerWakeString);
-          Serial.println(client.publish(stateTopic, mqttMessage));
+          Serial.println("*******************");
+          Serial.println("Publish state data: ");
+          Serial.println(mqttMessage);
+          Serial.println("to:");
+          Serial.println(stateTopic);
+          Serial.println("*******************");
+          Serial.println("----------PUB STATE RESULT ----------------");
+          Serial.println(client.publish_P(stateTopic, mqttMessage, false)); //OK
+          return;
         }
         else
         { // handle message as usual
