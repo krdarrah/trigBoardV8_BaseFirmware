@@ -53,7 +53,7 @@ void mqtt()
 
         if (strcmp(config.homeAssistantIntegration , "t") == 0)
         { // push data to homeassisant
-          Serial.print("Send data to home Assisant");
+          Serial.print("Send data to home Assisant as json");
           char status[4];
           char lowBattString[6];
           char timerWakeString[6];
@@ -68,16 +68,15 @@ void mqtt()
           esp_read_mac(baseMac, ESP_MAC_WIFI_STA);
           char baseMacChr[9] = {0};
           sprintf(baseMacChr, "%02X%02X%02X",  baseMac[3], baseMac[4], baseMac[5]);
-          Serial.println("/////////////// HA DISCOVERY ////////////");
-          if (strcmp(config.homeAssistantDiscovery, "t") == 0){
+          if (strcmp(config.homeAssistantDiscovery, "t") == 0){ // HomeAssistant MQTT discovery enabled
             //Create & Send discovery topic for each value : sensorString, lowBattString, batCharString, timerWakeString,
             Serial.println("Generate and send discovery message");
             for (int i = 0; i <= 3; i++)
             {
               sprintf(mqttDiscoveryTopic, "");
               sprintf(stateTopic, "");
-              sprintf(stateTopic, "%s/%s/state", config.homeAssistantPrefix, baseMacChr);
               //topic is {HomeAssitantPrefix}/{sensortype}/{MACAdress}/config : 1 per device
+              sprintf(stateTopic, "%s/%s/state", config.homeAssistantPrefix, baseMacChr);
               char name[10];
               char device_class[10];
               switch (i)
@@ -117,7 +116,7 @@ void mqtt()
               Serial.println(client.publish_P(mqttDiscoveryTopic, mqttDiscoveryMessage, false));
               Serial.println("*******************");
             }
-          }else{
+          }else{ // Direct sent to mqtt without discovery message
              sprintf(stateTopic, "");
               sprintf(stateTopic, "%s/%s/state", config.homeAssistantPrefix, baseMacChr);
           }
@@ -153,14 +152,7 @@ void mqtt()
                   batCharString,
                   lowBattString,
                   timerWakeString);
-          Serial.println("*******************");
-          Serial.println("Publish state data: ");
-          Serial.println(mqttMessage);
-          Serial.println("to:");
-          Serial.println(stateTopic);
-          Serial.println("*******************");
-          Serial.println("----------PUB STATE RESULT ----------------");
-          Serial.println(client.publish_P(stateTopic, mqttMessage, false)); //OK
+          Serial.println(client.publish_P(stateTopic, mqttMessage, false));
           return;
         }
         else
