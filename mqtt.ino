@@ -51,8 +51,7 @@ void mqtt()
         char mqttMessage[70];
 
 
-        //  if (strcmp(config.homeAssistantIntegration , "t") == 0)
-        if (true)
+        if (strcmp(config.homeAssistantIntegration , "t") == 0)
         { // push data to homeassisant
           Serial.print("Send data to home Assisant");
           char status[4];
@@ -69,53 +68,58 @@ void mqtt()
           esp_read_mac(baseMac, ESP_MAC_WIFI_STA);
           char baseMacChr[9] = {0};
           sprintf(baseMacChr, "%02X%02X%02X",  baseMac[3], baseMac[4], baseMac[5]);
-
-          //Create & Send discovery topic for each value : sensorString, lowBattString, batCharString, timerWakeString,
-          for (int i = 0; i <= 3; i++)
-          {
-            sprintf(mqttDiscoveryTopic, "");
-            sprintf(stateTopic, "");
-            sprintf(stateTopic, "%s/%s/state", config.homeAssistantPrefix, baseMacChr);
-            //topic is {HomeAssitantPrefix}/{sensortype}/{MACAdress}/config : 1 per device
-            char name[10];
-            char device_class[10];
-            switch (i)
+          Serial.println("/////////////// HA DISCOVERY ////////////");
+          if (strcmp(config.homeAssistantDiscovery, "t") == 0){
+            //Create & Send discovery topic for each value : sensorString, lowBattString, batCharString, timerWakeString,
+            Serial.println("Generate and send discovery message");
+            for (int i = 0; i <= 3; i++)
             {
-              case STATUT:
-                sprintf(mqttDiscoveryTopic, "%s/binary_sensor/status%s/config", config.homeAssistantPrefix, baseMacChr);
-                sprintf(valueTemplate, "{{value_json.status}}");
-                sprintf(name, "Status");
-                sprintf(device_class, "door");
-                break;
-              case LOW_BATT:
-                sprintf(mqttDiscoveryTopic, "%s/binary_sensor/lowbatt%s/config", config.homeAssistantPrefix, baseMacChr);
-                sprintf(valueTemplate, "{{value_json.low_batt}}");
-                sprintf(name, "Low Batt");
-                sprintf(device_class, "battery");
-                break;
-              case BATT_V:
-                sprintf(mqttDiscoveryTopic, "%s/sensor/batt%s/config", config.homeAssistantPrefix, baseMacChr);
-                sprintf(valueTemplate, "{{value_json.batt_v}}");
-                sprintf(name, "Tension");
-                sprintf(device_class, "voltage");
-                break;
-              case TIME_WAKE:
-                sprintf(mqttDiscoveryTopic, "%s/binary_sensor/waketime%s/config", config.homeAssistantPrefix, baseMacChr);
-                sprintf(valueTemplate, "{{value_json.timer_wake}}");
-                sprintf(name, "WakeTime");
-                sprintf(device_class, "power");
-                break;
+              sprintf(mqttDiscoveryTopic, "");
+              sprintf(stateTopic, "");
+              sprintf(stateTopic, "%s/%s/state", config.homeAssistantPrefix, baseMacChr);
+              //topic is {HomeAssitantPrefix}/{sensortype}/{MACAdress}/config : 1 per device
+              char name[10];
+              char device_class[10];
+              switch (i)
+              {
+                case STATUT:
+                  sprintf(mqttDiscoveryTopic, "%s/binary_sensor/status%s/config", config.homeAssistantPrefix, baseMacChr);
+                  sprintf(valueTemplate, "{{value_json.status}}");
+                  sprintf(name, "Status");
+                  sprintf(device_class, "door");
+                  break;
+                case LOW_BATT:
+                  sprintf(mqttDiscoveryTopic, "%s/binary_sensor/lowbatt%s/config", config.homeAssistantPrefix, baseMacChr);
+                  sprintf(valueTemplate, "{{value_json.low_batt}}");
+                  sprintf(name, "Low Batt");
+                  sprintf(device_class, "battery");
+                  break;
+                case BATT_V:
+                  sprintf(mqttDiscoveryTopic, "%s/sensor/batt%s/config", config.homeAssistantPrefix, baseMacChr);
+                  sprintf(valueTemplate, "{{value_json.batt_v}}");
+                  sprintf(name, "Tension");
+                  sprintf(device_class, "voltage");
+                  break;
+                case TIME_WAKE:
+                  sprintf(mqttDiscoveryTopic, "%s/binary_sensor/waketime%s/config", config.homeAssistantPrefix, baseMacChr);
+                  sprintf(valueTemplate, "{{value_json.timer_wake}}");
+                  sprintf(name, "WakeTime");
+                  sprintf(device_class, "power");
+                  break;
+              }
+              //Short Version
+              sprintf(mqttDiscoveryMessage, "{\"name\": \"%s\", \"stat_t\":\"%s\", \"val_tpl\":\"%s\", \"dev_cla\":\"%s\"}", name, stateTopic, valueTemplate, device_class);
+              Serial.println("*******************");
+              Serial.println("Publish discovery data: ");
+              Serial.println(mqttDiscoveryMessage);
+              Serial.println("to:");
+              Serial.println(mqttDiscoveryTopic);
+              Serial.println(client.publish_P(mqttDiscoveryTopic, mqttDiscoveryMessage, false));
+              Serial.println("*******************");
             }
-            //sprintf(mqttDiscoveryMessage, "{name: '%s', stat_t:'%s', val_tpl:'%s', dev_cla:'%s'}", name, stateTopic, valueTemplate, device_class);
-            //Short Version
-            sprintf(mqttDiscoveryMessage, "{\"name\": \"%s\", \"stat_t\":\"%s\", \"val_tpl\":\"%s\", \"dev_cla\":\"%s\"}", name, stateTopic, valueTemplate, device_class);
-            Serial.println("*******************");
-            Serial.println("Publish data: ");
-            Serial.println(mqttDiscoveryMessage);
-            Serial.println("to:");
-            Serial.println(mqttDiscoveryTopic);
-            Serial.println(client.publish_P(mqttDiscoveryTopic, mqttDiscoveryMessage, false));
-            Serial.println("*******************");
+          }else{
+             sprintf(stateTopic, "");
+              sprintf(stateTopic, "%s/%s/state", config.homeAssistantPrefix, baseMacChr);
           }
           //Create & Send message
           if (contactLatchClosed)

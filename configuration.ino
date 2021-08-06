@@ -168,7 +168,11 @@ void loadConfiguration(const char *filename, Config &config) {
     strlcpy(config.homeAssistantPrefix,                  // <- destination
             doc["homeAssistantPrefix"] | "homeassistant",  // <- source
             sizeof(config.homeAssistantPrefix));         // <- destination's capacity
-
+    
+    strlcpy(config.homeAssistantDiscovery,                  // <- destination
+            doc["homeAssistantDiscovery"] | "f",  // <- source
+            sizeof(config.homeAssistantDiscovery));         // <- destination's capacity
+            
     config.udpBlastCount = doc["udpBlastCount"] | 10;
     config.udptimeBetweenBlasts = doc["udptimeBetweenBlasts"] | 10;
 
@@ -245,6 +249,7 @@ void saveConfiguration(const char *filename, const Config &config) {
     doc["udptimeBetweenBlasts"] =  config.udptimeBetweenBlasts;
     doc["homeAssistantIntegration"] = config.homeAssistantIntegration;
     doc["homeAssistantPrefix"] = config.homeAssistantPrefix;
+    doc["homeAssistantDiscovery"]= config.homeAssistantDiscovery;
 
     // Serialize JSON to file
 

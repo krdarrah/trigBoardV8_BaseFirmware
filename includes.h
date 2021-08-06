@@ -88,6 +88,7 @@ struct Config {//full configuration file
   char highSpeed[3];
   char homeAssistantIntegration[3];
   char homeAssistantPrefix[50];
+  char homeAssistantDiscovery[3];
 };
 enum homeAssistantValues{
   STATUT,

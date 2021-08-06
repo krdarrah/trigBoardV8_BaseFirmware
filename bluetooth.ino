@@ -607,7 +607,6 @@ class MyCallbacks: public BLECharacteristicCallbacks {
         //**************************************
         char *keyWordmqhaen = strstr(rxBuffer, "#mqhaen");
         if (keyWordmqhaen != NULL) {
-          Serial.print("****Home Assistant ENABLED***");
           strlcpy(config.homeAssistantIntegration,                  // <- destination
                   "t",  // <- source
                   sizeof(config.homeAssistantIntegration));         // <- destination's capacity
@@ -617,7 +616,6 @@ class MyCallbacks: public BLECharacteristicCallbacks {
         //**************************************
         char *keyWordmqhadi = strstr(rxBuffer, "#mqhadi");
         if (keyWordmqhadi != NULL) {
-          Serial.print("****Home Assistant DISABLED***");
           strlcpy(config.homeAssistantIntegration,                  // <- destination
                   "f",  // <- source
                   sizeof(config.homeAssistantIntegration));         // <- destination's capacity
@@ -640,6 +638,24 @@ class MyCallbacks: public BLECharacteristicCallbacks {
           strlcpy(config.homeAssistantPrefix,                  // <- destination
                   parsedStrings[1],  // <- source
                   sizeof(config.homeAssistantPrefix));         // <- destination's capacity
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+         //**************************************
+        char *keyWordmqhadisen = strstr(rxBuffer, "#hadien");
+        if (keyWordmqhadisen != NULL) {
+          strlcpy(config.homeAssistantDiscovery,                  // <- destination
+                  "t",  // <- source
+                  sizeof(config.homeAssistantDiscovery));         // <- destination's capacity
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+        //**************************************
+        char *keyWordmqhadisdi = strstr(rxBuffer, "#hadidi");
+        if (keyWordmqhadisdi != NULL) {
+          strlcpy(config.homeAssistantDiscovery,                  // <- destination
+                  "f",  // <- source
+                  sizeof(config.homeAssistantDiscovery));         // <- destination's capacity
           saveConfiguration(filename, config);
           sendParam = true;
         }
@@ -924,6 +940,8 @@ void serviceBluetooth() {
     transmitData("haen", config.homeAssistantIntegration);
     delay(25);
     transmitData("hapr", config.homeAssistantPrefix);
+    delay(25);
+    transmitData("disen", config.homeAssistantDiscovery);
     delay(25);
     transmitData("sipen", config.staticIPenable);
     delay(25);
