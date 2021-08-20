@@ -157,7 +157,7 @@ void mqtt()
           Serial.println("*******************");
           Serial.println("----------PUB STATE RESULT ----------------");
           Serial.println(client.publish_P(stateTopic, mqttMessage, false)); //OK
-          return;
+          delay(20);
         }
         else
         { // handle message as usual
