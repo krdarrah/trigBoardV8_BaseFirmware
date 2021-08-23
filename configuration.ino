@@ -4,7 +4,7 @@ void loadConfiguration(const char *filename, Config &config) {
   if (SPIFFS.begin(true)) {
     File file = SPIFFS.open(filename, "r");
 
-    StaticJsonDocument<2000> doc;
+    StaticJsonDocument<3000> doc;
     DeserializationError error = deserializeJson(doc, file);
     if (error) {
       Serial.println(F("Failed to read file"));
@@ -163,6 +163,51 @@ void loadConfiguration(const char *filename, Config &config) {
     config.udpBlastCount = doc["udpBlastCount"] | 10;
     config.udptimeBetweenBlasts = doc["udptimeBetweenBlasts"] | 10;
 
+    strlcpy(config.clkEnable,                  // <- destination
+            doc["clkEnable"] | "f",  // <- source
+            sizeof(config.clkEnable));         // <- destination's capacity
+
+    config.clkTimeZone = doc["clkTimeZone"] | -5;
+
+    strlcpy(config.clkAppendEnable,                  // <- destination
+            doc["clkAppendEnable"] | "f",  // <- source
+            sizeof(config.clkAppendEnable));         // <- destination's capacity
+
+    strlcpy(config.clkAlarmEnable,                  // <- destination
+            doc["clkAlarmEnable"] | "f",  // <- source
+            sizeof(config.clkAlarmEnable));         // <- destination's capacity
+
+    config.clkAlarmHour = doc["clkAlarmHour"] | 0;
+    config.clkAlarmMinute = doc["clkAlarmMinute"] | 0;
+
+    strlcpy(config.clkUpdateNPTenable,                  // <- destination
+            doc["clkUpdateNPTenable"] | "f",  // <- source
+            sizeof(config.clkUpdateNPTenable));         // <- destination's capacity
+
+    strlcpy(config.clkAlarmMessage,                  // <- destination
+            doc["clkAlarmMessage"] | "Clock Wake",  // <- source
+            sizeof(config.clkAlarmMessage));         // <- destination's capacity
+
+    strlcpy(config.clkAppendAlmEnable,                  // <- destination
+            doc["clkAppendAlmEnable"] | "f",  // <- source
+            sizeof(config.clkAppendAlmEnable));         // <- destination's capacity
+
+    strlcpy(config.telegramEnable,                  // <- destination
+            doc["telegramEnable"] | "f",  // <- source
+            sizeof(config.telegramEnable));         // <- destination's capacity
+
+    strlcpy(config.telegramBOT,                  // <- destination
+            doc["telegramBOT"] | "",  // <- source
+            sizeof(config.telegramBOT));         // <- destination's capacity
+
+    strlcpy(config.telegramCHAT,                  // <- destination
+            doc["telegramCHAT"] | "",  // <- source
+            sizeof(config.telegramCHAT));         // <- destination's capacity
+
+
+
+
+
     file.close();
   } else {
     Serial.println(F("SPIFFS fault"));
@@ -234,6 +279,18 @@ void saveConfiguration(const char *filename, const Config &config) {
     doc["highSpeed"] =  config.highSpeed;
     doc["udpBlastCount"] =  config.udpBlastCount;
     doc["udptimeBetweenBlasts"] =  config.udptimeBetweenBlasts;
+    doc["clkEnable"] =  config.clkEnable;
+    doc["clkTimeZone"] =  config.clkTimeZone;
+    doc["clkAppendEnable"] =  config.clkAppendEnable;
+    doc["clkAlarmEnable"] =  config.clkAlarmEnable;
+    doc["clkAlarmHour"] =  config.clkAlarmHour;
+    doc["clkAlarmMinute"] =  config.clkAlarmMinute;
+    doc["clkUpdateNPTenable"] =  config.clkUpdateNPTenable;
+    doc["clkAlarmMessage"] =  config.clkAlarmMessage;
+    doc["clkAppendAlmEnable"] =  config.clkAppendAlmEnable;
+    doc["telegramEnable"] =  config.telegramEnable;
+    doc["telegramBOT"] =  config.telegramBOT;
+    doc["telegramCHAT"] =  config.telegramCHAT;
 
     // Serialize JSON to file
 

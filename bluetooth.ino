@@ -202,7 +202,8 @@ class MyCallbacks: public BLECharacteristicCallbacks {
           if (convertedToInt < 1)
             convertedToInt = 1;
           config.timerCountDown = convertedToInt;
-          rtcInit(config.timerCountDown, true);
+          updateRTC = true;
+          updateRTCtime = true;
           saveConfiguration(filename, config);
           sendParam = true;
         }
@@ -526,7 +527,8 @@ class MyCallbacks: public BLECharacteristicCallbacks {
           strlcpy(config.rtcCountdownMinute,                  // <- destination
                   "t",  // <- source
                   sizeof(config.rtcCountdownMinute));         // <- destination's capacity
-          rtcInit(config.timerCountDown, true);
+          updateRTC = true;
+          updateRTCtime = true;
           saveConfiguration(filename, config);
           sendParam = true;
         }
@@ -536,7 +538,8 @@ class MyCallbacks: public BLECharacteristicCallbacks {
           strlcpy(config.rtcCountdownMinute,                  // <- destination
                   "f",  // <- source
                   sizeof(config.rtcCountdownMinute));         // <- destination's capacity
-          rtcInit(config.timerCountDown, true);
+          updateRTC = true;
+          updateRTCtime = true;
           saveConfiguration(filename, config);
           sendParam = true;
         }
@@ -691,6 +694,216 @@ class MyCallbacks: public BLECharacteristicCallbacks {
                   sizeof(config.highSpeed));         // <- destination's capacity
           saveConfiguration(filename, config);
           sendParam = true;
+        }
+        //**************************************
+        char *keyWordclockEnable = strstr(rxBuffer, "#clken");
+        if (keyWordclockEnable != NULL) {
+          strlcpy(config.clkEnable,                  // <- destination
+                  "t",  // <- source
+                  sizeof(config.clkEnable));         // <- destination's capacity
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+        //**************************************
+        char *keyWordclockDisable = strstr(rxBuffer, "#clkdi");
+        if (keyWordclockDisable != NULL) {
+          strlcpy(config.clkEnable,                  // <- destination
+                  "f",  // <- source
+                  sizeof(config.clkEnable));         // <- destination's capacity
+          strlcpy(config.clkAlarmEnable,                  // <- destination
+                  "f",  // <- source
+                  sizeof(config.clkAlarmEnable));         // <- destination's capacity
+
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+        //**************************************
+        char *keyWordTimeZone = strstr(rxBuffer, "#clkzn");
+        if (keyWordTimeZone != NULL) {
+          const char delimiter[] = ",";
+          char parsedStrings[2][5];
+          char *token =  strtok(rxBuffer, delimiter);
+          strncpy(parsedStrings[0], token, sizeof(parsedStrings[0]));//first one
+          for (int i = 1; i < 2; i++) {
+            token =  strtok(NULL, delimiter);
+            strncpy(parsedStrings[i], token, sizeof(parsedStrings[i]));
+          }
+
+          int convertedToInt = atoi(parsedStrings[1]);
+          if (convertedToInt > 14)
+            convertedToInt = 14;
+          if (convertedToInt < -12)
+            convertedToInt = -12;
+          config.clkTimeZone = convertedToInt;
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+        //**************************************
+        char *keyWordclockAppendEnable = strstr(rxBuffer, "#clkappen");
+        if (keyWordclockAppendEnable != NULL) {
+          strlcpy(config.clkAppendEnable,                  // <- destination
+                  "t",  // <- source
+                  sizeof(config.clkAppendEnable));         // <- destination's capacity
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+        //**************************************
+        char *keyWordclockAppendDisable = strstr(rxBuffer, "#clkappdi");
+        if (keyWordclockAppendDisable != NULL) {
+          strlcpy(config.clkAppendEnable,                  // <- destination
+                  "f",  // <- source
+                  sizeof(config.clkAppendEnable));         // <- destination's capacity
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+        //**************************************
+        char *keyWordclockAlarmEnable = strstr(rxBuffer, "#clkalmen");
+        if (keyWordclockAlarmEnable != NULL) {
+          strlcpy(config.clkAlarmEnable,                  // <- destination
+                  "t",  // <- source
+                  sizeof(config.clkAlarmEnable));         // <- destination's capacity
+          updateRTC = true;
+          updateRTCtime = false;
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+        //**************************************
+        char *keyWordclockAlarmDisable = strstr(rxBuffer, "#clkalmdi");
+        if (keyWordclockAlarmDisable != NULL) {
+          strlcpy(config.clkAlarmEnable,                  // <- destination
+                  "f",  // <- source
+                  sizeof(config.clkAlarmEnable));         // <- destination's capacity
+          updateRTC = true;
+          updateRTCtime = false;
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+        //**************************************
+        char *keyWordClkAlarmSetting = strstr(rxBuffer, "#clkalmtim");
+        if (keyWordClkAlarmSetting != NULL) {
+          const char delimiter[] = ",";
+          char parsedStrings[3][5];
+          char *token =  strtok(rxBuffer, delimiter);
+          strncpy(parsedStrings[0], token, sizeof(parsedStrings[0]));//first one
+          for (int i = 1; i < 3; i++) {
+            token =  strtok(NULL, delimiter);
+            strncpy(parsedStrings[i], token, sizeof(parsedStrings[i]));
+          }
+
+          int convertedToIntHour = atoi(parsedStrings[1]);
+          int convertedToIntMinute = atoi(parsedStrings[2]);
+          if (convertedToIntHour > 23)
+            convertedToIntHour = 23;
+          if (convertedToIntHour < 0)
+            convertedToIntHour = 0;
+          if (convertedToIntMinute > 59)
+            convertedToIntMinute = 59;
+          if (convertedToIntMinute < 0)
+            convertedToIntMinute = 0;
+
+          config.clkAlarmHour = convertedToIntHour;
+          config.clkAlarmMinute = convertedToIntMinute;
+          updateRTC = true;
+          updateRTCtime = false;
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+        //**************************************
+        char *keyWordclockNPTenable = strstr(rxBuffer, "#clkNTPen");
+        if (keyWordclockNPTenable != NULL) {
+          strlcpy(config.clkUpdateNPTenable,                  // <- destination
+                  "t",  // <- source
+                  sizeof(config.clkUpdateNPTenable));         // <- destination's capacity
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+        //**************************************
+        char *keyWordclockNPTdisable = strstr(rxBuffer, "#clkNTPdi");
+        if (keyWordclockNPTdisable != NULL) {
+          strlcpy(config.clkUpdateNPTenable,                  // <- destination
+                  "f",  // <- source
+                  sizeof(config.clkUpdateNPTenable));         // <- destination's capacity
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+        //**************************************
+        char *keyWordAlarmMessage = strstr(rxBuffer, "#clkalarMsg");
+        if (keyWordAlarmMessage != NULL) {
+          const char delimiter[] = ",";
+          char parsedStrings[2][50];
+          char *token =  strtok(rxBuffer, delimiter);
+          strncpy(parsedStrings[0], token, sizeof(parsedStrings[0]));//first one
+          for (int i = 1; i < 2; i++) {
+            token =  strtok(NULL, delimiter);
+            strncpy(parsedStrings[i], token, sizeof(parsedStrings[i]));
+          }
+          strlcpy(config.clkAlarmMessage,                  // <- destination
+                  parsedStrings[1],  // <- source
+                  sizeof(config.clkAlarmMessage));         // <- destination's capacity
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+        //**************************************
+        char *keyWordclockAppendAlmEN = strstr(rxBuffer, "#clkalmappen");
+        if (keyWordclockAppendAlmEN != NULL) {
+          strlcpy(config.clkAppendAlmEnable,                  // <- destination
+                  "t",  // <- source
+                  sizeof(config.clkAppendAlmEnable));         // <- destination's capacity
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+        //**************************************
+        char *keyWordclockAppendAlmDI = strstr(rxBuffer, "#clkalmappdi");
+        if (keyWordclockAppendAlmDI != NULL) {
+          strlcpy(config.clkAppendAlmEnable,                  // <- destination
+                  "f",  // <- source
+                  sizeof(config.clkAppendAlmEnable));         // <- destination's capacity
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+        //**************************************
+        char *keyWordTelegramEN = strstr(rxBuffer, "#teleEN");
+        if (keyWordTelegramEN != NULL) {
+          strlcpy(config.telegramEnable,                  // <- destination
+                  "t",  // <- source
+                  sizeof(config.telegramEnable));         // <- destination's capacity
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+        //**************************************
+        char *keyWordTelegramDI = strstr(rxBuffer, "#teleDI");
+        if (keyWordTelegramDI != NULL) {
+          strlcpy(config.telegramEnable,                  // <- destination
+                  "f",  // <- source
+                  sizeof(config.telegramEnable));         // <- destination's capacity
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+        //**************************************
+        char *keyWordTelegramCred = strstr(rxBuffer, "#telcrd");
+        if (keyWordTelegramCred != NULL) {
+          const char delimiter[] = ",";
+          char parsedStrings[3][50];
+          char *token =  strtok(rxBuffer, delimiter);
+          strncpy(parsedStrings[0], token, sizeof(parsedStrings[0]));//first one
+          for (int i = 1; i < 3; i++) {
+            token =  strtok(NULL, delimiter);
+            strncpy(parsedStrings[i], token, sizeof(parsedStrings[i]));
+          }
+          strlcpy(config.telegramBOT,                  // <- destination
+                  parsedStrings[1],  // <- source
+                  sizeof(config.telegramBOT));         // <- destination's capacity
+          strlcpy(config.telegramCHAT,                  // <- destination
+                  parsedStrings[2],  // <- source
+                  sizeof(config.telegramCHAT));         // <- destination's capacity
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+
+        //**************************************
+        char *keyWordNPTset = strstr(rxBuffer, "#clkNTPset");
+        if (keyWordNPTset != NULL) {
+          getNTPtime();
         }
         //**************************************
         char *keyWordbof = strstr(rxBuffer, "#bof");
@@ -904,11 +1117,44 @@ void serviceBluetooth() {
     sprintf(blastTimeChar, "%i", config.udptimeBetweenBlasts);
     transmitData("udpTim", blastTimeChar);
     delay(25);
+    transmitData("clkEnable", config.clkEnable);
+    delay(25);
+    char clkTimeZoneChar[5];
+    sprintf(clkTimeZoneChar, "%i", config.clkTimeZone);
+    transmitData("clkTimeZone", clkTimeZoneChar);
+    delay(25);
+    transmitData("clkAppendEnable", config.clkAppendEnable);
+    delay(25);
+    transmitData("clkAlarmEnable", config.clkAlarmEnable);
+    delay(25);
+    char clkAlarmHourChar[5];
+    sprintf(clkAlarmHourChar, "%i", config.clkAlarmHour);
+    transmitData("clkAlarmHour", clkAlarmHourChar);
+    delay(25);
+    char clkAlarmMinuteChar[5];
+    if (config.clkAlarmMinute > 9)
+      sprintf(clkAlarmMinuteChar, "%i", config.clkAlarmMinute);
+    else
+      sprintf(clkAlarmMinuteChar, "0%i", config.clkAlarmMinute);
+    transmitData("clkAlarmMinute", clkAlarmMinuteChar);
+    delay(25);
+    transmitData("clkUpdateNPTenable", config.clkUpdateNPTenable);
+    delay(25);
+    transmitData("clkAlarmMessage", config.clkAlarmMessage);
+    delay(25);
+    transmitData("clkAppendAlmEnable", config.clkAppendAlmEnable);
+    delay(25);
+    transmitData("telegramEnable", config.telegramEnable);
+    delay(25);
+    transmitData("telegramBOT", config.telegramBOT);
+    delay(25);
+    transmitData("telegramCHAT", config.telegramCHAT);
+
     bluetoothParamStartTime = millis();
   }
   if (millis() - bluetoothStatusStartTime > 200 && deviceConnected) {//send status
 
-    char txString[200] = "stat,";
+    char txString[250] = "stat,";
     if (WiFi.status() == WL_CONNECTED)
       strcat(txString, "co,");
     else {
@@ -942,7 +1188,13 @@ void serviceBluetooth() {
     char ssidChar[50];
     WiFi.SSID().toCharArray(ssidChar, sizeof(ssidChar));
     strcat(txString, ssidChar);
-
+    strcat(txString, ",");
+    rtcGetTime();
+    strcat(txString, rtcTimeStamp);
+    if (updateRTC) {
+      rtcInit(config.timerCountDown, updateRTCtime);
+      updateRTC = false;
+    }
     pTxCharacteristic->setValue(txString);
     pTxCharacteristic->notify();
 

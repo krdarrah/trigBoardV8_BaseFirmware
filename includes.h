@@ -1,17 +1,31 @@
 #ifndef INCLUDES_H
 #define INCLUDES_H
 
+/*
+ * Versions:
+ * Arduino IDE v1.8.15
+ * ESP32 v1.06
+ * PubSubClient Library v2.8.0
+ * Arduino Json Library v6.18.0
+ * UniversalTelegramBot v1.3.0
+ */
+
+
+
 //libraries used
 #include "FS.h"// for SPIFFS
 #include "SPIFFS.h"
+#include "time.h"
+
 #include <WiFi.h>
 #include <Wire.h>//for I2C RTC
-//#include <WiFiUdp.h>
 #include <WiFiClientSecure.h>
-#include <PubSubClient.h>//for mqtt
 
-#include <Pushsafer.h>
+//*** THESE ARE THE ONLY LIBRARIES YOU NEED TO INSTALL ***
+#include <PubSubClient.h>//for mqtt
 #include <ArduinoJson.h>
+#include <UniversalTelegramBot.h>
+//********************************************************
 
 #include <BLEDevice.h>
 #include <BLEServer.h>
@@ -20,8 +34,6 @@
 
 #include <ESPmDNS.h>
 #include <ArduinoOTA.h>
-
-
 
 //trigBoard PINS
 const int BatteryPin = 36;//analog Input
@@ -86,7 +98,18 @@ struct Config {//full configuration file
   int udpBlastCount;
   int udptimeBetweenBlasts;
   char highSpeed[3];
-
+  char clkEnable[3];
+  int clkTimeZone;
+  char clkAppendEnable[3];
+  char clkAlarmEnable[3];
+  int clkAlarmHour;
+  int clkAlarmMinute;
+  char clkUpdateNPTenable[3];
+  char clkAlarmMessage[50];
+  char clkAppendAlmEnable[3];
+  char telegramEnable[3];
+  char telegramBOT[50];
+  char telegramCHAT[50];
 };
 
 //bluetooth
@@ -110,6 +133,9 @@ bool OTAsetup = false;
 const char *filename = "/config.txt";
 //logic
 bool timerWake;
+bool clockWake;
+bool updateRTC;
+bool updateRTCtime;
 bool contactLatchClosed;
 bool contactLatchOpen;
 bool lowBattery;
@@ -119,6 +145,8 @@ bool contactChanged = false;
 bool wiFiNeeded = false;
 Config config;
 
+//rtc
+char rtcTimeStamp[20];
 //function prototypes
 //    wakeup tab
 void checkWakeupPins();
@@ -127,6 +155,10 @@ void waitForButton();
 void checkIfContactChanged();
 //    rtc tab
 bool rtcInit(byte timeValue, bool setNewTime);
+void rtcGetTime();
+bool getNTPtime();
+void nptUpdateTime();
+void timestampAppend();
 //    pushover tab
 boolean pushOver();
 //    WiFi tab
@@ -150,7 +182,28 @@ void getFourNumbersForIP(const char *ipChar);//used also in WiFi & tcp tab
 // ifttt tab
 void ifttt();
 //pushSafer tab
+struct PushSaferInput {
+  String message;
+  String title;
+  String sound;
+  String vibration;
+  String icon;
+  String iconcolor;
+  String device;
+  String url;
+  String urlTitle;
+  String time2live;
+  String priority;
+  String retry;
+  String expire;
+  String answer;
+  String picture;
+  String picture2;
+  String picture3;
+};
 void pushSafer();
+String Pushsafer_buildString(String boundary, String name, String value);
+String Pushsafer_sendEvent(PushSaferInput input);
 //  mqtt tab
 void mqtt();
 //  OTA tab
