@@ -22,6 +22,15 @@ All trigBoards after this date will be burned with this code
 8/05/20
 - added battery offset to battery voltage measurement
 
+.. note::
+    | *For Compiling or Modifying Code*
+    | **Latest Versions of IDE and Libraries Used**
+    | Arduino IDE v1.8.10
+    | ESP32 v1.0.4  - in boards manager, after this boards manager url in preferences https://dl.espressif.com/dl/package_esp32_index.json
+    | PubSubClient Library v2.7.0
+    | Arduino Json Library v6.13.0 
+    | PushSafer Library Forked `HERE <https://github.com/krdarrah/pushsafer-arduino-library>`_ Thanks to `Brian Lough <https://github.com/witnessmenow>`_
+
 10/10/20
 - small change to allow the password to be entered in blank in the configurator in case of connecting to an unsecured network
 
