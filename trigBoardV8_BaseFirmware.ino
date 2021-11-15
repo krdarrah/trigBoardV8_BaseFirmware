@@ -1,9 +1,10 @@
 #define OTA_DEBUG
 #include "includes.h"
 
-const char fwVersion[] = "08/16/21";
+const char fwVersion[] = "11/14/21";
 
 void setup() {
+
   pinMode(ESPlatchPin, OUTPUT);
   digitalWrite(ESPlatchPin, HIGH);
   pinMode(LEDpin, OUTPUT);
@@ -12,6 +13,8 @@ void setup() {
   checkWakeupPins();
   loadConfiguration(filename, config);
   rtcInit(config.timerCountDown, false);
+  
+  
   Serial.println(getBattery(), 2);
   if (pushLogic()) { //decide if push will occur or nt and what message will be
     timestampAppend();

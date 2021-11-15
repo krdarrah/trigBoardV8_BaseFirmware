@@ -50,6 +50,7 @@ void tcpWiFiEvent(WiFiEvent_t event) {
 }
 boolean tcpWiFiConnect() {
   WiFi.disconnect(true);
+  //delay(100);//might help before trying to connect again
   tcpConnected = false;
   WiFi.begin(config.udpSSID, config.udpPW);
   unsigned long wifiStart = millis();
@@ -61,6 +62,7 @@ boolean tcpWiFiConnect() {
     }
   }
   Serial.println("Connected");
+
   return true;
 }
 
@@ -101,6 +103,22 @@ void tcp() {
     for (int i = 0; i < config.udpBlastCount; i++) {
       Serial.printf("TCP ATTEMPT #%i ***************************\n", i);
       if (tcpWiFiConnect()) {
+
+        char tcpPushMessage[100];
+        //if rssi append
+        if (strcmp(config.appendRSSI, "t") == 0) {
+          getRSSI();
+          sprintf(tcpPushMessage, "%s %s,%s$$$%li", config.trigName, pushMessage, rssiChar, micros());
+        }
+        else
+          sprintf(tcpPushMessage, "%s %s$$$%li", config.trigName, pushMessage, micros());
+        //strip out spaces and replace with + so can be passed by parameter
+        for (int i = 0; i < strlen(tcpPushMessage); i++) {
+          if (tcpPushMessage[i] == ' ')
+            tcpPushMessage[i] = '+';
+        }
+        sprintf(tcpMessage, "GET /trigBoard?message=%s HTTP/1.1", tcpPushMessage);
+
         if (sendTCPmessage())
           break;
         if (i == config.udpBlastCount - 1) {

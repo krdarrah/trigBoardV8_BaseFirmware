@@ -110,6 +110,13 @@ struct Config {//full configuration file
   char telegramEnable[3];
   char telegramBOT[50];
   char telegramCHAT[50];
+  char appendRSSI[3];
+  char checkAgain[3];
+  char timerCheck[3];
+  char lastState[3];
+  char failedConnect[3];
+  int secondsAfterToCheckAgain;
+  
 };
 
 //bluetooth
@@ -147,6 +154,7 @@ Config config;
 
 //rtc
 char rtcTimeStamp[20];
+bool checkAgainSet = false;
 //function prototypes
 //    wakeup tab
 void checkWakeupPins();
@@ -163,6 +171,8 @@ void timestampAppend();
 boolean pushOver();
 //    WiFi tab
 bool connectWiFi();
+void appendRSSI();
+char rssiChar[5];
 //    battery tab
 float getBattery();
 //    congiguration tab

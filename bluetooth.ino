@@ -1187,7 +1187,10 @@ void serviceBluetooth() {
     strcat(txString, ",");
     char ssidChar[50];
     WiFi.SSID().toCharArray(ssidChar, sizeof(ssidChar));
+    getRSSI();
     strcat(txString, ssidChar);
+    strcat(txString, "\n-");
+    strcat(txString, rssiChar);
     strcat(txString, ",");
     rtcGetTime();
     strcat(txString, rtcTimeStamp);

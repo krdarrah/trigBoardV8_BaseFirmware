@@ -191,7 +191,7 @@ bool rtcInit(byte timeValue, bool setNewTime) {
     //writeRTC(0x00, 0x58);//soft reset for good measure
     writeRTC(0x01, 0x07);//turn off clock out FD=111
     writeRTC(0x10, timeValue);//set count down time, 1 = 60seconds = 1min, so 60 = 1hr
-    if (strcmp(config.rtcCountdownMinute, "t") == 0) {
+    if (strcmp(config.rtcCountdownMinute, "t") == 0 && !checkAgainSet) {
       //Serial.println("Minute Mode");
       writeRTC(0x11, 0x1E);//minute mode, timer and interrupts enabled
     }
@@ -224,8 +224,36 @@ bool rtcInit(byte timeValue, bool setNewTime) {
 
 
 
-  if (timerWake)
+  if (timerWake) {
+    if (strcmp(config.checkAgain, "t") == 0 && strcmp(config.timerCheck, "t") == 0) {//this means we're checking the contact again
+      Serial.println("THIS IS A MISSION CRITICAL WAKE");
+      
+      //reset
+      strlcpy(config.timerCheck,                  // <- destination
+              "f",  // <- source
+              sizeof(config.timerCheck));         // <- destination's capacity
+
+      saveConfiguration(filename, config);
+
+      if (strcmp(config.lastState, "O") == 0 && contactStatusClosed) {
+        Serial.println("WAS OPEN, BUT CHECK FOUND CLOSED");
+        timerWake = false;//this should force the logic to treat this as a contact wake
+        return false;
+      }
+      if (strcmp(config.lastState, "C") == 0 && !contactStatusClosed) {
+        Serial.println("WAS CLOSED, BUT CHECK FOUND OPEN");
+        timerWake = false;//this should force the logic to treat this as a contact wake
+        return false;
+      }
+      Serial.println("ALL GOOD!");
+      killPower();//this means everything is good on the check!
+
+      //return false;
+    }
+
+
     return true;
+  }
   else
     return false;
 }

@@ -204,9 +204,28 @@ void loadConfiguration(const char *filename, Config &config) {
             doc["telegramCHAT"] | "",  // <- source
             sizeof(config.telegramCHAT));         // <- destination's capacity
 
+    strlcpy(config.appendRSSI,                  // <- destination
+            doc["appendRSSI"] | "t",  // <- source
+            sizeof(config.appendRSSI));         // <- destination's capacity
+
+    strlcpy(config.checkAgain,                  // <- destination
+            doc["checkAgain"] | "t",  // <- source
+            sizeof(config.checkAgain));         // <- destination's capacity
+
+    strlcpy(config.lastState,                  // <- destination
+            doc["lastState"] | "O",  // <- source
+            sizeof(config.lastState));         // <- destination's capacity
+
+    strlcpy(config.failedConnect,                  // <- destination
+            doc["failedConnect"] | "f",  // <- source
+            sizeof(config.failedConnect));         // <- destination's capacity
+
+    strlcpy(config.timerCheck,                  // <- destination
+            doc["timerCheck"] | "f",  // <- source
+            sizeof(config.timerCheck));         // <- destination's capacity
 
 
-
+    config.secondsAfterToCheckAgain = doc["secondsAfterToCheckAgain"] | 5;
 
     file.close();
   } else {
@@ -291,6 +310,13 @@ void saveConfiguration(const char *filename, const Config &config) {
     doc["telegramEnable"] =  config.telegramEnable;
     doc["telegramBOT"] =  config.telegramBOT;
     doc["telegramCHAT"] =  config.telegramCHAT;
+    doc["appendRSSI"] =  config.appendRSSI;
+
+    doc["checkAgain"] =  config.checkAgain;
+    doc["lastState"] =  config.lastState;
+    doc["failedConnect"] =  config.failedConnect;
+    doc["secondsAfterToCheckAgain"] =  config.secondsAfterToCheckAgain;
+    doc["timerCheck"] =  config.timerCheck;
 
     // Serialize JSON to file
 
