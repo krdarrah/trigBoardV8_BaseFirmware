@@ -906,6 +906,67 @@ class MyCallbacks: public BLECharacteristicCallbacks {
           getNTPtime();
         }
         //**************************************
+        char *keyWordRSSIen = strstr(rxBuffer, "#rssien");
+        if (keyWordRSSIen != NULL) {
+          strlcpy(config.appendRSSI,                  // <- destination
+                  "t",  // <- source
+                  sizeof(config.appendRSSI));         // <- destination's capacity
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+        //**************************************
+        char *keyWordRSSIdi = strstr(rxBuffer, "#rssidi");
+        if (keyWordRSSIdi != NULL) {
+          strlcpy(config.appendRSSI,                  // <- destination
+                  "f",  // <- source
+                  sizeof(config.appendRSSI));         // <- destination's capacity
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+        //**************************************
+        char *keyWordMissionEn = strstr(rxBuffer, "#missionen");
+        if (keyWordMissionEn != NULL) {
+          strlcpy(config.checkAgain,                  // <- destination
+                  "t",  // <- source
+                  sizeof(config.checkAgain));         // <- destination's capacity
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+        //**************************************
+        char *keyWordMissionDi = strstr(rxBuffer, "#missiondi");
+        if (keyWordMissionDi != NULL) {
+          strlcpy(config.checkAgain,                  // <- destination
+                  "f",  // <- source
+                  sizeof(config.checkAgain));         // <- destination's capacity
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+        //**************************************
+        char *keyWordMissionTime = strstr(rxBuffer, "#tmiss");
+        if (keyWordMissionTime != NULL) {
+          const char delimiter[] = ",";
+          char parsedStrings[2][5];
+          char *token =  strtok(rxBuffer, delimiter);
+          strncpy(parsedStrings[0], token, sizeof(parsedStrings[0]));//first one
+          for (int i = 1; i < 2; i++) {
+            token =  strtok(NULL, delimiter);
+            strncpy(parsedStrings[i], token, sizeof(parsedStrings[i]));
+          }
+
+          int convertedToInt = atoi(parsedStrings[1]);
+          if (convertedToInt > 60)
+            convertedToInt = 60;
+          if (convertedToInt < 1)
+            convertedToInt = 1;
+          config.secondsAfterToCheckAgain = convertedToInt;
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+
+
+
+
+        //**************************************
         char *keyWordbof = strstr(rxBuffer, "#bof");
         if (keyWordbof != NULL) {
           const char delimiter[] = ",";
@@ -1149,6 +1210,14 @@ void serviceBluetooth() {
     transmitData("telegramBOT", config.telegramBOT);
     delay(25);
     transmitData("telegramCHAT", config.telegramCHAT);
+    delay(25);
+    transmitData("appendRSSI", config.appendRSSI);
+    delay(25);
+    transmitData("missionEnable", config.checkAgain);
+    delay(25);
+    char missionCriticalTimeChar[5];
+    sprintf(missionCriticalTimeChar, "%i", config.secondsAfterToCheckAgain);
+    transmitData("missionTimeafter", missionCriticalTimeChar);
 
     bluetoothParamStartTime = millis();
   }

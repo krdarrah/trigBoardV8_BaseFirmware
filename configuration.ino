@@ -205,7 +205,7 @@ void loadConfiguration(const char *filename, Config &config) {
             sizeof(config.telegramCHAT));         // <- destination's capacity
 
     strlcpy(config.appendRSSI,                  // <- destination
-            doc["appendRSSI"] | "t",  // <- source
+            doc["appendRSSI"] | "f",  // <- source
             sizeof(config.appendRSSI));         // <- destination's capacity
 
     strlcpy(config.checkAgain,                  // <- destination
