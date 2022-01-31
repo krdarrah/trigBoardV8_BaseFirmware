@@ -6,13 +6,11 @@
 
 */
 
-
-
-
 boolean pushOver() {
   if (strcmp(config.pushOverEnable, "t") == 0) {//only if enabled
 
     WiFiClientSecure client;
+    client.setInsecure();//had to add this in ESP32 1.0.6
     String _token = config.pushAPIKey;
     String _user = config.pushUserKey;
     //String _message = pushMessage;

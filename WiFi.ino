@@ -50,5 +50,19 @@ bool connectWiFi() {
   }
 
   Serial.println("Connected");
+  if (strcmp(config.appendRSSI, "t") == 0) {
+    getRSSI();
+    strcat(pushMessage, ",");
+    strcat(pushMessage, rssiChar);
+  }
   return true;
+}
+
+void getRSSI() {
+  //Serial.print("WiFi RSSI = ");
+  int rssiAbs = WiFi.RSSI();
+  //Serial.println(rssiAbs);
+  if (rssiAbs < 0);
+  rssiAbs = rssiAbs * -1;
+  sprintf(rssiChar, "%idBm", rssiAbs);//can't have any dashes (-)
 }

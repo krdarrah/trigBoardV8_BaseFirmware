@@ -1,15 +1,14 @@
-/* 
- *  Found example code here: https://iotdesignpro.com/projects/how-trigger-led-using-ifttt-and-esp32-email-notification
- *  
- */
+/*
+    Found example code here: https://iotdesignpro.com/projects/how-trigger-led-using-ifttt-and-esp32-email-notification
+
+*/
 
 
 void ifttt() {
   if (strcmp(config.iftttEnable, "t") == 0) {//only if enabled
-    wiFiNeeded = true;
     Serial.println("Sending ifttt");
     WiFiClientSecure client;
-
+    client.setInsecure();//had to add this in ESP32 1.0.6
     const char* host = "maker.ifttt.com";
 
     const int httpsPort = 443;
@@ -21,9 +20,9 @@ void ifttt() {
     }
     String url = String("/trigger/") + config.trigName + "/with/key/" + config.iftttMakerKey;
 
-//    Serial.print("requesting URL: ");
-//
-//    Serial.println(url);
+    //    Serial.print("requesting URL: ");
+    //
+    //    Serial.println(url);
 
     String jsonData = String("{ \"value1\" : \"") + config.trigName + "\", \"value2\" :\"" + pushMessage + "\", \"value3\" : \" \" }";
 
@@ -38,7 +37,7 @@ void ifttt() {
     //let's wait for something to come back... only a few seconds
     unsigned long startTimePush = millis();
     while (millis() - startTimePush < 5000) {
-      if (client.available()){
+      if (client.available()) {
         Serial.println("From Server");
         break;
       }

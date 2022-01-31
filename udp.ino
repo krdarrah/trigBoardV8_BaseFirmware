@@ -70,10 +70,14 @@ void udp() {
 
     WiFiUDP udp;
 
-
     for (int i = 0; i < config.udpBlastCount; i++) {
       if (udp.beginPacket(udpAddress, udpPort) == 1) {
-        udp.printf("%s %s", config.trigName, pushMessage);
+        //if rssi append
+        if (strcmp(config.appendRSSI, "t") == 0) {
+          getRSSI();
+          udp.printf("%s %s,%s", config.trigName, pushMessage, rssiChar);
+        } else
+          udp.printf("%s %s", config.trigName, pushMessage);
         if (udp.endPacket() == 1) {
           Serial.print(i);
           Serial.println(" success");
