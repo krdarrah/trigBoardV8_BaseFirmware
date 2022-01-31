@@ -27,3 +27,11 @@ All trigBoards after this date will be burned with this code
 
 12/20/20
 - Added support for TCP as choice instead of UDP
+
+8/16/21
+- Clock Alarm Added in - now can use second alarm in RTC for daily wakes and also sync with NTP server
+- Telegram Notification Support 
+
+11/29/21
+- Append RSSI to messages
+- Mission Critical wake feature to allow verification of contact status after a wake

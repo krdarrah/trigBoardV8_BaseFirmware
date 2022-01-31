@@ -53,9 +53,30 @@ void killPower() {
   //could get stuck if you really beat on it
   unsigned long waitForLatchStartTime = millis();
   while ((!digitalRead(contactClosedPin) || !digitalRead(contactOpenedPin))) {//in case a race condition
-    //do nothing, we have to wait for things to unlatch before proceeding 
+    //do nothing, we have to wait for things to unlatch before proceeding
   }
   checkIfContactChanged();//that might've taken a while, so better check to see if things changed
+
+  //mission critical stuff to force a check after sleep
+  if (!timerWake && !clockWake && !buttonWasPressed && strcmp(config.checkAgain, "t") == 0) { // check again mode only on normal contact wake
+    Serial.println("setting check again");
+    checkAgainSet = true; //go and set timer
+    if (contactStatusClosed) {
+      strlcpy(config.lastState,                  // <- destination
+              "C",  // <- source
+              sizeof(config.lastState));         // <- destination's capacity
+    } else {
+      strlcpy(config.lastState,                  // <- destination
+              "O",  // <- source
+              sizeof(config.lastState));         // <- destination's capacity
+    }
+    strlcpy(config.timerCheck,                  // <- destination
+            "t",  // <- source
+            sizeof(config.timerCheck));         // <- destination's capacity
+
+    saveConfiguration(filename, config);
+    rtcInit(config.secondsAfterToCheckAgain, true);
+  }
   digitalWrite(ESPlatchPin, LOW);//when this goes LOW, we are done...
   Serial.println("zzz");
   if (digitalRead(wakeButtonPin))//and wake not pressed, but still alive

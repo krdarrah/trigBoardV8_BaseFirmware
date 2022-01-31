@@ -14,7 +14,7 @@ bool pushLogic() {
       contactStatusClosed = !contactStatusClosed;//just so we make sure to send opposite next reboot
     } else { //maybe something else weird covered here
       if (contactLatchOpen && contactStatusClosed) { //latched open, status is closed?
-        if (timerWake) { //we're going to ignore this
+        if (timerWake || clockWake) { //we're going to ignore this
           Serial.println("treating like a timer wake");
           contactLatchOpen = false;
           contactLatchClosed = false;
@@ -27,8 +27,8 @@ bool pushLogic() {
         }
       }
       if (contactLatchClosed && !contactStatusClosed) { //latched closed, status is open?
-        if (timerWake) { //we're going to ignore this
-          Serial.println("treating like a timer wake");
+        if (timerWake || clockWake) { //we're going to ignore this
+          Serial.println("treating like a timer/clock wake");
           contactLatchOpen = false;
           contactLatchClosed = false;
         } else {
@@ -44,7 +44,7 @@ bool pushLogic() {
   } else {
     //slow normal speed
     Serial.println("Normal Mode");
-    if (timerWake) { //timer wake, then do nothing with contact latches
+    if (timerWake || clockWake) { //timer wake, then do nothing with contact latches
       contactLatchOpen = false;
       contactLatchClosed = false;
     } else {
@@ -60,7 +60,7 @@ bool pushLogic() {
 
   //check to see if we need wifi for anything
   // mqtt or ifttt or pushsafer or pushover, udp is a private network configured separately
-  if (strcmp(config.iftttEnable, "t") == 0 || strcmp(config.mqttEnable, "t") == 0 || strcmp(config.pushSaferEnable, "t") == 0 || strcmp(config.pushOverEnable, "t") == 0) {
+  if (strcmp(config.iftttEnable, "t") == 0 || strcmp(config.mqttEnable, "t") == 0 || strcmp(config.pushSaferEnable, "t") == 0 || strcmp(config.pushOverEnable, "t") == 0 || strcmp(config.telegramEnable, "t") == 0) {
     wiFiNeeded = true;
   }
 
@@ -136,5 +136,23 @@ bool pushLogic() {
     }
 
   }
+
+  //**************************************
+  if (clockWake) { //last priority
+    if (strcmp(config.clkUpdateNPTenable, "t") == 0) {
+      wiFiNeeded = true;
+    }
+    if (contactStatusClosed) {
+      Serial.println(F("CLOCK + CONTACT CLOSED"));
+      sprintf(pushMessage, "%s %s, %sV", config.clkAlarmMessage, config.StillClosedMessage, batCharString);
+    }
+    else {
+      Serial.println(F("CLOCK + CONTACT OPEN"));
+      sprintf(pushMessage, "%s %s, %sV", config.clkAlarmMessage, config.StillOpenMessage, batCharString);
+    }
+    return true;
+  }
+
+  //nothing fired
   return false;
 }
