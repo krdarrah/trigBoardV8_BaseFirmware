@@ -16,6 +16,8 @@ void mqtt() {
     
     Serial.println("sending mqtt");
 
+    //WiFiClientSecure client;
+    //client.setInsecure();//trigger this with a config var, enable one-way mqtt ssl
     WiFiClient espClient;
     PubSubClient client(espClient);
     client.setServer(config.mqttServer, config.mqttPort);
