@@ -16,10 +16,10 @@ class MyServerCallbacks: public BLEServerCallbacks {
 class MyCallbacks: public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic *pCharacteristic) {
       std::string rxValue = pCharacteristic->getValue();
-      char rxBuffer[1000];
+      char rxBuffer[2100];
 
       if (rxValue.length() > 0) {
-        if (rxValue.length() > 999)
+        if (rxValue.length() > 2099)
           return;
         for (int i = 0; i < rxValue.length(); i++) {
           rxBuffer[i] = rxValue[i];
@@ -591,24 +591,56 @@ class MyCallbacks: public BLECharacteristicCallbacks {
         }
 
         //**************************************
-        char *keyWordmqssl = strstr(rxBuffer, "#mqssl");
-        if (keyWordmqssl != NULL) {
+        char *keyWordmqsslke = strstr(rxBuffer, "#mqsslke");
+        if (keyWordmqsslke != NULL) {
           const char delimiter[] = ",";
-          char parsedStrings[4][2000];
+          char parsedStrings[2][2000];
           char *token =  strtok(rxBuffer, delimiter);
           strncpy(parsedStrings[0], token, sizeof(parsedStrings[0]));//first one
-          for (int i = 1; i < 4; i++) {
+          for (int i = 1; i < 2; i++) {
             token =  strtok(NULL, delimiter);
             strncpy(parsedStrings[i], token, sizeof(parsedStrings[i]));
           }
           strlcpy(config.mqttSSLKey,                  // <- destination
                   parsedStrings[1],  // <- source
                   sizeof(config.mqttSSLKey));         // <- destination's capacity
+
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+
+        //**************************************
+        char *keyWordmqsslce = strstr(rxBuffer, "#mqsslce");
+        if (keyWordmqsslce != NULL) {
+          const char delimiter[] = ",";
+          char parsedStrings[2][2000];
+          char *token =  strtok(rxBuffer, delimiter);
+          strncpy(parsedStrings[0], token, sizeof(parsedStrings[0]));//first one
+          for (int i = 1; i < 2; i++) {
+            token =  strtok(NULL, delimiter);
+            strncpy(parsedStrings[i], token, sizeof(parsedStrings[i]));
+          }
           strlcpy(config.mqttSSLCert,                  // <- destination
-                  parsedStrings[2],  // <- source
+                  parsedStrings[1],  // <- source
                   sizeof(config.mqttSSLCert));         // <- destination's capacity
+          
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+
+        //**************************************
+        char *keyWordmqsslca = strstr(rxBuffer, "#mqsslca");
+        if (keyWordmqsslca != NULL) {
+          const char delimiter[] = ",";
+          char parsedStrings[2][2000];
+          char *token =  strtok(rxBuffer, delimiter);
+          strncpy(parsedStrings[0], token, sizeof(parsedStrings[0]));//first one
+          for (int i = 1; i < 2; i++) {
+            token =  strtok(NULL, delimiter);
+            strncpy(parsedStrings[i], token, sizeof(parsedStrings[i]));
+          }
           strlcpy(config.mqttSSLCA,                  // <- destination
-                  parsedStrings[3],  // <- source
+                  parsedStrings[1],  // <- source
                   sizeof(config.mqttSSLCA));         // <- destination's capacity
 
           saveConfiguration(filename, config);
