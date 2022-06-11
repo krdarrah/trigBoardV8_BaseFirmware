@@ -591,6 +591,31 @@ class MyCallbacks: public BLECharacteristicCallbacks {
         }
 
         //**************************************
+        char *keyWordmqssl = strstr(rxBuffer, "#mqssl");
+        if (keyWordmqssl != NULL) {
+          const char delimiter[] = ",";
+          char parsedStrings[4][2000];
+          char *token =  strtok(rxBuffer, delimiter);
+          strncpy(parsedStrings[0], token, sizeof(parsedStrings[0]));//first one
+          for (int i = 1; i < 4; i++) {
+            token =  strtok(NULL, delimiter);
+            strncpy(parsedStrings[i], token, sizeof(parsedStrings[i]));
+          }
+          strlcpy(config.mqttSSLKey,                  // <- destination
+                  parsedStrings[1],  // <- source
+                  sizeof(config.mqttSSLKey));         // <- destination's capacity
+          strlcpy(config.mqttSSLCert,                  // <- destination
+                  parsedStrings[2],  // <- source
+                  sizeof(config.mqttSSLCert));         // <- destination's capacity
+          strlcpy(config.mqttSSLCA,                  // <- destination
+                  parsedStrings[3],  // <- source
+                  sizeof(config.mqttSSLCA));         // <- destination's capacity
+
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+
+        //**************************************
         char *keyWordmqsen = strstr(rxBuffer, "#mqsen");
         if (keyWordmqsen != NULL) {
           strlcpy(config.mqttSecureEnable,                  // <- destination
@@ -1155,6 +1180,12 @@ void serviceBluetooth() {
     transmitData("mqsu", config.mqttUser);
     delay(25);
     transmitData("mqsp", config.mqttPW);
+    delay(25);
+    transmitData("mqsske", config.mqttSSLKey);
+    delay(25);
+    transmitData("mqssce", config.mqttSSLCert);
+    delay(25);
+    transmitData("mqssca", config.mqttSSLCA);
     delay(25);
     transmitData("sipen", config.staticIPenable);
     delay(25);

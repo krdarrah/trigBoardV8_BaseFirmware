@@ -10,14 +10,27 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.println();
 }
 
+//PubSubClient getClient () {
+//  if (strcmp(config.mqttSecureEnable, "t") == 0 && strlen(config.mqttSSLKey) > 0 && strlen(config.mqttSSLCert) > 0 && strlen(config.mqttSSLCA) > 0) {
+//    WiFiClientSecure espClient;
+//    espClient.setCACert(config.mqttSSLCA);
+//    espClient.setCertificate(config.mqttSSLCert); // for client verification
+//    espClient.setPrivateKey(config.mqttSSLKey);  
+//    espClient.setInsecure();
+//    PubSubClient client(espClient);
+//    return client;
+//  } else {
+//    WiFiClient espClient;
+//    PubSubClient client(espClient);
+//    return client;
+//  }
+//}
 
 void mqtt() {
   if (strcmp(config.mqttEnable, "t") == 0) {//only if enabled
     
     Serial.println("sending mqtt");
 
-    //WiFiClientSecure client;
-    //client.setInsecure();//trigger this with a config var, enable one-way mqtt ssl
     WiFiClient espClient;
     PubSubClient client(espClient);
     client.setServer(config.mqttServer, config.mqttPort);

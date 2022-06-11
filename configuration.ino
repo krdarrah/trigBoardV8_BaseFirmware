@@ -4,7 +4,7 @@ void loadConfiguration(const char *filename, Config &config) {
   if (SPIFFS.begin(true)) {
     File file = SPIFFS.open(filename, "r");
 
-    StaticJsonDocument<3000> doc;
+    StaticJsonDocument<11000> doc;
     DeserializationError error = deserializeJson(doc, file);
     if (error) {
       Serial.println(F("Failed to read file"));
@@ -137,6 +137,15 @@ void loadConfiguration(const char *filename, Config &config) {
     strlcpy(config.mqttPW,                  // <- destination
             doc["mqttPW"] | "password",  // <- source
             sizeof(config.mqttPW));         // <- destination's capacity
+    strlcpy(config.mqttSSLKey,                  // <- destination
+            doc["mqttSSLKey"] | "",  // <- source
+            sizeof(config.mqttSSLKey));         // <- destination's capacity
+    strlcpy(config.mqttSSLCert,                  // <- destination
+            doc["mqttSSLCert"] | "",  // <- source
+            sizeof(config.mqttSSLCert));         // <- destination's capacity
+    strlcpy(config.mqttSSLCA,                  // <- destination
+            doc["mqttSSLCA"] | "",  // <- source
+            sizeof(config.mqttSSLCA));         // <- destination's capacity
     strlcpy(config.staticIPenable,                  // <- destination
             doc["staticIPenable"] | "f",  // <- source
             sizeof(config.staticIPenable));         // <- destination's capacity
@@ -244,7 +253,7 @@ void saveConfiguration(const char *filename, const Config &config) {
       Serial.println(F("Failed to create file"));
       return;
     }
-    StaticJsonDocument<2000> doc;
+    StaticJsonDocument<11000> doc;
 
     // Set the values in the document
     doc["ssid"] = config.ssid;
@@ -289,6 +298,9 @@ void saveConfiguration(const char *filename, const Config &config) {
     doc["mqttSecureEnable"] =  config.mqttSecureEnable;
     doc["mqttUser"] =  config.mqttUser;
     doc["mqttPW"] =  config.mqttPW;
+    doc["mqttSSLKey"] =  config.mqttSSLKey;
+    doc["mqttSSLCert"] =  config.mqttSSLCert;
+    doc["mqttSSLCA"] =  config.mqttSSLCA;
     doc["staticIPenable"] =  config.staticIPenable;
     doc["staticIP"] =  config.staticIP;
     doc["staticGatewayAddress"] =  config.staticGatewayAddress;

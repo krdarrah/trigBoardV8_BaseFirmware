@@ -89,6 +89,9 @@ struct Config {//full configuration file
   char mqttSecureEnable[3];
   char mqttUser[50];
   char mqttPW[50];
+  char mqttSSLKey[2000];
+  char mqttSSLCert[2000];
+  char mqttSSLCA[2000];
   char staticIPenable[3];
   char staticIP[20];
   char staticGatewayAddress[20];
