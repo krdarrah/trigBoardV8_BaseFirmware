@@ -4,7 +4,7 @@ void loadConfiguration(const char *filename, Config &config) {
   if (SPIFFS.begin(true)) {
     File file = SPIFFS.open(filename, "r");
 
-    StaticJsonDocument<11000> doc;
+    StaticJsonDocument<3000> doc;
     DeserializationError error = deserializeJson(doc, file);
     if (error) {
       Serial.println(F("Failed to read file"));
@@ -137,15 +137,6 @@ void loadConfiguration(const char *filename, Config &config) {
     strlcpy(config.mqttPW,                  // <- destination
             doc["mqttPW"] | "password",  // <- source
             sizeof(config.mqttPW));         // <- destination's capacity
-    strlcpy(config.mqttSSLKey,                  // <- destination
-            doc["mqttSSLKey"] | "",  // <- source
-            sizeof(config.mqttSSLKey));         // <- destination's capacity
-    strlcpy(config.mqttSSLCert,                  // <- destination
-            doc["mqttSSLCert"] | "",  // <- source
-            sizeof(config.mqttSSLCert));         // <- destination's capacity
-    strlcpy(config.mqttSSLCA,                  // <- destination
-            doc["mqttSSLCA"] | "",  // <- source
-            sizeof(config.mqttSSLCA));         // <- destination's capacity
     strlcpy(config.staticIPenable,                  // <- destination
             doc["staticIPenable"] | "f",  // <- source
             sizeof(config.staticIPenable));         // <- destination's capacity
@@ -233,16 +224,90 @@ void loadConfiguration(const char *filename, Config &config) {
             doc["timerCheck"] | "f",  // <- source
             sizeof(config.timerCheck));         // <- destination's capacity
 
-
     config.secondsAfterToCheckAgain = doc["secondsAfterToCheckAgain"] | 5;
 
     file.close();
+
+    readKeyFileInto(mqttKeyFile, mqttSSLKey, sizeof(mqttSSLKey));
+    Serial.println("Read key file...");
+    //Serial.println(mqttSSLKey);    
+
+    readKeyFileInto(mqttCertFile, mqttSSLCert, sizeof(mqttSSLCert));
+    Serial.println("Read cert file...");
+    //Serial.println(mqttSSLCert);
+
+    readKeyFileInto(mqttCAFile, mqttSSLCA, sizeof(mqttSSLCert));
+    Serial.println("Read ca file...");
+    //Serial.println(mqttSSLCA);
+    
   } else {
     Serial.println(F("SPIFFS fault"));
     killPower();
   }
 }
 
+void saveKeyFile(const char *filename, const char *value) {
+  if (!SPIFFS.begin(true)) {
+    return;
+  }
+  //Serial.println("Attempting key file write");
+  //Serial.println(filename);
+  File keyFile = SPIFFS.open(filename, "w");
+  if (!keyFile) {
+    Serial.println("Error, no key file for writing");
+  } else {
+    //Serial.println(value);
+    int keyBytesWritten = keyFile.print(value);
+    keyFile.close(); 
+    if (keyBytesWritten > 0) {
+      //Serial.println("Key file was written");
+      //Serial.println(keyBytesWritten);
+    } else {
+      SPIFFS.remove(filename);
+      //Serial.println("Key is blank");
+    } 
+  }
+  //Serial.println("Wrote to key file...");
+  //Serial.println(filename);
+  return;
+}
+
+void readKeyFileInto(const char *filename, char *outValue, size_t outSize) {
+  if (!SPIFFS.begin(true)) {
+    return;
+  }
+  File keyFile = SPIFFS.open(filename, "r");
+  if(keyFile) {
+    size_t keyFileSize = keyFile.size(); //the size of the file in bytes   
+    char keyString[keyFileSize];   // + 1 for '\0' char at the end
+    //Serial.print("Key file size: ");
+    //Serial.print(keyFileSize);
+    //Serial.print("\n");
+    //Serial.print("Max output size: ");
+    //Serial.print(outSize);
+    //Serial.print("\n");
+    if(keyFileSize <= outSize) {
+      uint16_t k = 0;
+      while(keyFile.available()){
+         keyString[k] = keyFile.read();
+         k++;
+      }
+      keyString[k] = '\0';
+      //Serial.print("Read ");
+      //Serial.print(k);
+      //Serial.print(" bytes\n");
+    }
+    keyFile.close();
+    strlcpy(outValue,                  // <- destination
+            keyString,  // <- source
+            outSize);         // <- destination's capacity 
+  } else {
+    strlcpy(outValue,                  // <- destination
+            "",  // <- source
+            outSize);         // <- destination's capacity
+  }
+  return;
+}
 
 void saveConfiguration(const char *filename, const Config &config) {
 
@@ -253,7 +318,7 @@ void saveConfiguration(const char *filename, const Config &config) {
       Serial.println(F("Failed to create file"));
       return;
     }
-    StaticJsonDocument<11000> doc;
+    StaticJsonDocument<3000> doc;
 
     // Set the values in the document
     doc["ssid"] = config.ssid;
@@ -298,9 +363,6 @@ void saveConfiguration(const char *filename, const Config &config) {
     doc["mqttSecureEnable"] =  config.mqttSecureEnable;
     doc["mqttUser"] =  config.mqttUser;
     doc["mqttPW"] =  config.mqttPW;
-    doc["mqttSSLKey"] =  config.mqttSSLKey;
-    doc["mqttSSLCert"] =  config.mqttSSLCert;
-    doc["mqttSSLCA"] =  config.mqttSSLCA;
     doc["staticIPenable"] =  config.staticIPenable;
     doc["staticIP"] =  config.staticIP;
     doc["staticGatewayAddress"] =  config.staticGatewayAddress;
@@ -337,10 +399,6 @@ void saveConfiguration(const char *filename, const Config &config) {
     }
 
     // Close the file
-    file.close();
-
-
+    file.close();  
   }
-
-
 }
