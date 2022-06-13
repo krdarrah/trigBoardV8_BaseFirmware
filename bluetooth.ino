@@ -593,31 +593,24 @@ class MyCallbacks: public BLECharacteristicCallbacks {
         //**************************************
         char *keyWordmqsslke = strstr(rxBuffer, "#mqsslke");
         if (keyWordmqsslke != NULL) {
-          Serial.println("Got part of a key");
           const char delimiter[] = ",";
           char parsedStrings[3][600];
           char *token =  strtok(rxBuffer, delimiter);
-          Serial.println("DEBUG1");
           strncpy(parsedStrings[0], token, sizeof(parsedStrings[0]));//first one
-          Serial.println("DEBUG2");
           for (int i = 1; i < 3; i++) {
             token =  strtok(NULL, delimiter);
             strncpy(parsedStrings[i], token, sizeof(parsedStrings[i]));
           }
-          Serial.println("DEBUG3");
           if(strcmp(parsedStrings[1], "w") == 0) {
-            Serial.println("DEBUG4");
             strlcpy(mqttSSLKey,                  // <- destination
                   parsedStrings[2],  // <- source
                   sizeof(mqttSSLKey));         // <- destination's capacity
           } else {
             //add some logic in here to resend all params when done
-            Serial.println("DEBUG5");
             strlcat(mqttSSLKey,                  // <- destination
                   parsedStrings[2],  // <- source
                   sizeof(mqttSSLKey));         // <- destination's capacity
           }
-          Serial.println("DEBUG6");
 
           saveKeyFile(mqttKeyFile, mqttSSLKey);
           //sendParam = true;
