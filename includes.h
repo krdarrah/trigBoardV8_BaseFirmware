@@ -151,7 +151,14 @@ bool buttonWasPressed;
 bool contactChanged = false;
 bool wiFiNeeded = false;
 Config config;
-
+// mqtt ssl key files and global in-memory strings
+const size_t mqttMaxKeyLength = 3001;
+char mqttSSLKey[mqttMaxKeyLength];
+char mqttSSLCert[mqttMaxKeyLength];
+char mqttSSLCA[mqttMaxKeyLength];
+const char *mqttKeyFile = "/key.pem";
+const char *mqttCertFile = "/cert.pem";
+const char *mqttCAFile = "/ca.pem";
 //rtc
 char rtcTimeStamp[20];
 bool checkAgainSet = false;

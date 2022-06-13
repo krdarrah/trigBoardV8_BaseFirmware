@@ -1,7 +1,7 @@
 #define OTA_DEBUG
 #include "includes.h"
 
-const char fwVersion[] = "11/29/21";
+const char fwVersion[] = "06/12/22";
 
 void setup() {
 
@@ -13,7 +13,6 @@ void setup() {
   checkWakeupPins();
   loadConfiguration(filename, config);
   rtcInit(config.timerCountDown, false);
-  
   
   Serial.println(getBattery(), 2);
   if (pushLogic()) { //decide if push will occur or nt and what message will be

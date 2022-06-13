@@ -16,10 +16,10 @@ class MyServerCallbacks: public BLEServerCallbacks {
 class MyCallbacks: public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic *pCharacteristic) {
       std::string rxValue = pCharacteristic->getValue();
-      char rxBuffer[1000];
+      char rxBuffer[600];
 
       if (rxValue.length() > 0) {
-        if (rxValue.length() > 999)
+        if (rxValue.length() > 599)
           return;
         for (int i = 0; i < rxValue.length(); i++) {
           rxBuffer[i] = rxValue[i];
@@ -591,6 +591,82 @@ class MyCallbacks: public BLECharacteristicCallbacks {
         }
 
         //**************************************
+        char *keyWordmqsslke = strstr(rxBuffer, "#mqsslke");
+        if (keyWordmqsslke != NULL) {
+          const char delimiter[] = ",";
+          char parsedStrings[3][600];
+          char *token =  strtok(rxBuffer, delimiter);
+          strncpy(parsedStrings[0], token, sizeof(parsedStrings[0]));//first one
+          for (int i = 1; i < 3; i++) {
+            token =  strtok(NULL, delimiter);
+            strncpy(parsedStrings[i], token, sizeof(parsedStrings[i]));
+          }
+          if(strcmp(parsedStrings[1], "w") == 0) {
+            strlcpy(mqttSSLKey,                  // <- destination
+                  parsedStrings[2],  // <- source
+                  sizeof(mqttSSLKey));         // <- destination's capacity
+          } else {
+            //add some logic in here to resend all params when done
+            strlcat(mqttSSLKey,                  // <- destination
+                  parsedStrings[2],  // <- source
+                  sizeof(mqttSSLKey));         // <- destination's capacity
+          }
+
+          saveKeyFile(mqttKeyFile, mqttSSLKey);
+          //sendParam = true;
+        }
+        
+        //**************************************
+        char *keyWordmqsslce = strstr(rxBuffer, "#mqsslce");
+        if (keyWordmqsslce != NULL) {
+          const char delimiter[] = ",";
+          char parsedStrings[3][600];
+          char *token =  strtok(rxBuffer, delimiter);
+          strncpy(parsedStrings[0], token, sizeof(parsedStrings[0]));//first one
+          for (int i = 1; i < 3; i++) {
+            token =  strtok(NULL, delimiter);
+            strncpy(parsedStrings[i], token, sizeof(parsedStrings[i]));
+          }
+          if(strcmp(parsedStrings[1], "w") == 0) {
+            strlcpy(mqttSSLCert,                  // <- destination
+                  parsedStrings[2],  // <- source
+                  sizeof(mqttSSLCert));
+          } else {
+            strlcat(mqttSSLCert,                  // <- destination
+                  parsedStrings[2],  // <- source
+                  sizeof(mqttSSLCert));         // <- destination's capacity
+          }
+          
+          saveKeyFile(mqttCertFile, mqttSSLCert);
+          //sendParam = true;
+        }
+        
+        //**************************************
+        char *keyWordmqsslca = strstr(rxBuffer, "#mqsslca");
+        if (keyWordmqsslca != NULL) {
+          const char delimiter[] = ",";
+          char parsedStrings[3][600];
+          char *token =  strtok(rxBuffer, delimiter);
+          strncpy(parsedStrings[0], token, sizeof(parsedStrings[0]));//first one
+          for (int i = 1; i < 3; i++) {
+            token =  strtok(NULL, delimiter);
+            strncpy(parsedStrings[i], token, sizeof(parsedStrings[i]));
+          }
+          if(strcmp(parsedStrings[1], "w") == 0) {
+            strlcpy(mqttSSLCA,                  // <- destination
+                  parsedStrings[2],  // <- source
+                  sizeof(mqttSSLCA));         // <- destination's capacity
+          } else {
+            strlcat(mqttSSLCA,                  // <- destination
+                  parsedStrings[2],  // <- source
+                  sizeof(mqttSSLCA));         // <- destination's capacity
+          }
+          
+          saveKeyFile(mqttCAFile, mqttSSLCA);
+          //sendParam = true;
+        }
+        
+        //**************************************
         char *keyWordmqsen = strstr(rxBuffer, "#mqsen");
         if (keyWordmqsen != NULL) {
           strlcpy(config.mqttSecureEnable,                  // <- destination
@@ -1013,7 +1089,7 @@ void initBluetooth() {
   macAddressString = WiFi.macAddress();
   Serial.println("Starting Config Mode");
   BLEDevice::init("trigBoard");
-
+  BLEDevice::setMTU(517); // BT has a 5 byte header. This gives us 512 usable
   // Create the BLE Server
   pServer = BLEDevice::createServer();
   pServer->setCallbacks(new MyServerCallbacks());
@@ -1043,17 +1119,60 @@ void initBluetooth() {
   // Start advertising
   pServer->getAdvertising()->start();
   Serial.println("Waiting for bluetooth connection...");
-
 }
 
 void transmitData(char *prefix, char *dataTx) {
-  char txString[100];
+  // Max 512B plus null terminator
+  char txString[513];
   //  Serial.print(dataTx);
   //  Serial.print(" ");
+  
   sprintf(txString, "%s,%s", prefix, dataTx);
-  //Serial.println(txString);
+  // Serial.println(txString);
+  // Serial.println(strlen(txString));
   pTxCharacteristic->setValue(txString);
   pTxCharacteristic->notify();
+}
+
+void packetizeBluetoothMessage(char *header, char *suffix, char *dataToSend) {
+  Serial.println("Sending bluetooth packet...");
+  size_t dataSize = strlen(dataToSend);
+  size_t fullHeaderLen = strlen(header) + strlen(suffix) + 1; // add a slot for our new comma
+  size_t totalTransmission = fullHeaderLen + dataSize; // leave only one null terminator
+  char fullHeader[fullHeaderLen + 1]; // pad null terminator
+  sprintf(fullHeader, "%s,%s", header, suffix);
+  
+  // Leave space for the extra comma in transmitData
+  // We can move 511B here, plus 1B (comma) transmitData also creates
+  if(totalTransmission <= 511) {  
+    transmitData(fullHeader, dataToSend); 
+    return;
+  }
+  // Max bluetooth transmission per packet is 512
+  // Leave space for the extra comma in transmitData
+  // Restrict our local string to 511B
+  size_t bodyLength = (511 - fullHeaderLen); 
+  size_t remainderLength = dataSize - bodyLength;
+  char body[bodyLength + 1];  // pad null terminator
+  char remainder[remainderLength + 1];  // pad null terminator
+  int i;
+  int r;
+  for(i = 0; i < bodyLength; i++) {
+    body[i] = dataToSend[i];
+  }
+  body[i] = '\0';
+  for(r = 0; r < remainderLength; r++) {
+    remainder[r] = dataToSend[i];
+    i++;
+  }
+  remainder[r] = '\0';
+  //Serial.print("Total length: ");
+  //Serial.print(strlen(fullHeader) + strlen(body));
+  //Serial.print("B\n");
+  transmitData(fullHeader, body);
+  delay(25);
+  packetizeBluetoothMessage(header, "a", remainder);
+  return;
 }
 
 void serviceBluetooth() {
@@ -1156,6 +1275,17 @@ void serviceBluetooth() {
     delay(25);
     transmitData("mqsp", config.mqttPW);
     delay(25);
+    
+    //------------------------------------------
+    //break these into 512 byte chunks
+    packetizeBluetoothMessage("mqsske", "w", mqttSSLKey);
+    delay(25);
+    packetizeBluetoothMessage("mqssce", "w", mqttSSLCert);
+    delay(25);
+    packetizeBluetoothMessage("mqssca", "w", mqttSSLCA);
+    delay(25);
+    //------------------------------------------
+    
     transmitData("sipen", config.staticIPenable);
     delay(25);
     transmitData("sip", config.staticIP);
