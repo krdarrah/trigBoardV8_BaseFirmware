@@ -188,7 +188,10 @@ bool rtcInit(byte timeValue, bool setNewTime) {
 
   byte timerMode = readRTC(0x11);
   if (((timerMode >> 2) & 0x1) == 0 || setNewTime) { //if timer fired, was never setup, or GUI changed something
-    //writeRTC(0x00, 0x58);//soft reset for good measure
+    if (strcmp(config.clkEnable, "f") == 0) {
+      writeRTC(0x00, 0x58);//soft reset if clock wake not used, so we don't loose the time, or hopefully this gets fired at some point before the clock is enabled
+     // delay(10);
+    }
     writeRTC(0x01, 0x07);//turn off clock out FD=111
     writeRTC(0x10, timeValue);//set count down time, 1 = 60seconds = 1min, so 60 = 1hr
     if (strcmp(config.rtcCountdownMinute, "t") == 0 && !checkAgainSet) {
@@ -200,7 +203,6 @@ bool rtcInit(byte timeValue, bool setNewTime) {
       writeRTC(0x11, 0x16);//seconds mode, timer and interrupts enabled
     }
   }
-
 
   // clock alarm settings
   if (strcmp(config.clkAlarmEnable, "t") == 0 && strcmp(config.clkEnable, "t") == 0) {
@@ -221,13 +223,10 @@ bool rtcInit(byte timeValue, bool setNewTime) {
     writeRTC(0x01, reg01); //disable alarm
   }
 
-
-
-
   if (timerWake) {
     if (strcmp(config.checkAgain, "t") == 0 && strcmp(config.timerCheck, "t") == 0) {//this means we're checking the contact again
       Serial.println("THIS IS A MISSION CRITICAL WAKE");
-      
+
       //reset
       strlcpy(config.timerCheck,                  // <- destination
               "f",  // <- source

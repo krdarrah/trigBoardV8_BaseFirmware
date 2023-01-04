@@ -1,7 +1,7 @@
 #define OTA_DEBUG
 #include "includes.h"
 
-const char fwVersion[] = "11/29/21";
+const char fwVersion[] = "1/03/22";
 
 void setup() {
 
