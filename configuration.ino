@@ -141,7 +141,7 @@ void loadConfiguration(const char *filename, Config &config) {
             doc["staticIPenable"] | "f",  // <- source
             sizeof(config.staticIPenable));         // <- destination's capacity
     strlcpy(config.staticIP,                  // <- destination
-            doc["staticIP"] | "192.168.1.200",  // <- source
+            doc["staticIP"] | "192.168.1.150",  // <- source
             sizeof(config.staticIP));         // <- destination's capacity
     strlcpy(config.staticGatewayAddress,                  // <- destination
             doc["staticGatewayAddress"] | "192.168.1.1",  // <- source
@@ -159,6 +159,15 @@ void loadConfiguration(const char *filename, Config &config) {
     strlcpy(config.highSpeed,                  // <- destination
             doc["highSpeed"] | "f",  // <- source
             sizeof(config.highSpeed));         // <- destination's capacity
+
+
+    strlcpy(config.homeAssistantIntegration,                  // <- destination
+            doc["homeAssistantIntegration"] | "f",  // <- source
+            sizeof(config.homeAssistantIntegration));         // <- destination's capacity
+
+    strlcpy(config.homeAssistantPrefix,                  // <- destination
+            doc["homeAssistantPrefix"] | "homeassistant",  // <- source
+            sizeof(config.homeAssistantPrefix));         // <- destination's capacity
 
     config.udpBlastCount = doc["udpBlastCount"] | 10;
     config.udptimeBetweenBlasts = doc["udptimeBetweenBlasts"] | 10;
@@ -298,6 +307,8 @@ void saveConfiguration(const char *filename, const Config &config) {
     doc["highSpeed"] =  config.highSpeed;
     doc["udpBlastCount"] =  config.udpBlastCount;
     doc["udptimeBetweenBlasts"] =  config.udptimeBetweenBlasts;
+    doc["homeAssistantIntegration"] = config.homeAssistantIntegration;
+    doc["homeAssistantPrefix"] = config.homeAssistantPrefix;
     doc["clkEnable"] =  config.clkEnable;
     doc["clkTimeZone"] =  config.clkTimeZone;
     doc["clkAppendEnable"] =  config.clkAppendEnable;

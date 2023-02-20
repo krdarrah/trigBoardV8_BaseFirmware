@@ -608,6 +608,45 @@ class MyCallbacks: public BLECharacteristicCallbacks {
           sendParam = true;
         }
         //**************************************
+        char *keyWordmqhaen = strstr(rxBuffer, "#mqhaen");
+        if (keyWordmqhaen != NULL) {
+          Serial.print("****Home Assistant ENABLED***");
+          strlcpy(config.homeAssistantIntegration,                  // <- destination
+                  "t",  // <- source
+                  sizeof(config.homeAssistantIntegration));         // <- destination's capacity
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+        //**************************************
+        char *keyWordmqhadi = strstr(rxBuffer, "#mqhadi");
+        if (keyWordmqhadi != NULL) {
+          Serial.print("****Home Assistant DISABLED***");
+          strlcpy(config.homeAssistantIntegration,                  // <- destination
+                  "f",  // <- source
+                  sizeof(config.homeAssistantIntegration));         // <- destination's capacity
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+        char *keyWordhapr = strstr(rxBuffer, "#mqhapr");
+        if (keyWordhapr != NULL) {
+          const char delimiter[] = ",";
+          char parsedStrings[2][50];
+          char *token =  strtok(rxBuffer, delimiter);
+          strncpy(parsedStrings[0], token, sizeof(parsedStrings[0]));//first one
+          Serial.print("****mqhapr-0***");
+          Serial.println(parsedStrings[0]);
+          for (int i = 1; i < 2; i++) {
+            token =  strtok(NULL, delimiter);
+            strncpy(parsedStrings[i], token, sizeof(parsedStrings[i]));
+          }
+          Serial.println(parsedStrings[1]);
+          strlcpy(config.homeAssistantPrefix,                  // <- destination
+                  parsedStrings[1],  // <- source
+                  sizeof(config.homeAssistantPrefix));         // <- destination's capacity
+          saveConfiguration(filename, config);
+          sendParam = true;
+        }
+        //**************************************
         char *keyWordsipen = strstr(rxBuffer, "#sipen");
         if (keyWordsipen != NULL) {
           strlcpy(config.staticIPenable,                  // <- destination
@@ -1155,6 +1194,10 @@ void serviceBluetooth() {
     transmitData("mqsu", config.mqttUser);
     delay(25);
     transmitData("mqsp", config.mqttPW);
+    delay(25);
+    transmitData("haen", config.homeAssistantIntegration);
+    delay(25);
+    transmitData("hapr", config.homeAssistantPrefix);
     delay(25);
     transmitData("sipen", config.staticIPenable);
     delay(25);
