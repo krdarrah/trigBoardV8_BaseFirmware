@@ -3,10 +3,10 @@
 
 /*
  * Versions:
- * Arduino IDE v1.8.15
- * ESP32 v1.06
+ * Arduino IDE v2.2.1
+ * ESP32 v2.0.14
  * PubSubClient Library v2.8.0
- * Arduino Json Library v6.18.0
+ * Arduino Json Library v7.0.1
  * UniversalTelegramBot v1.3.0
  */
 
@@ -61,8 +61,8 @@ struct Config {//full configuration file
   char timerSelect[10];
   char StillOpenMessage[50];
   char StillClosedMessage[50];
-  double batteryThreshold;
-  double batteryOffset;
+  float batteryThreshold;
+  float batteryOffset;
   char pushOverEnable[3];
   char pushUserKey[50];
   char pushAPIKey[50];

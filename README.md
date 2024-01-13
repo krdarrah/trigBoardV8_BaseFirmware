@@ -35,3 +35,9 @@ All trigBoards after this date will be burned with this code
 11/29/21
 - Append RSSI to messages
 - Mission Critical wake feature to allow verification of contact status after a wake
+
+1/13/23
+- been a while since updates, so uploaded and tested with my latest libs/core
+- ESP32 v2.0.14
+- Arduino Json v7.0.1
+- Had to change the config file to store floats instead of doubles for Bat offset and low bat thresh

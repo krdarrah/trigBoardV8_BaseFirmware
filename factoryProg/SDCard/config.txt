@@ -1,0 +1,5 @@
+bootNameOffset=0xe000
+bootloaderNameOffset=0x1000
+partitionsNameOffset=0x8000
+firmwareNameOffset=0x10000
+spiffsNameOffset=0x3D0000
